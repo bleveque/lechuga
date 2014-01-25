@@ -27,7 +27,8 @@ var svgCPU,
     gCPU,
     pathCPU,
     pathMem,
-    gMem;
+    gMem,
+    label_group;
 
 
 /**
@@ -84,7 +85,7 @@ function setup(jsonData) {
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
-                
+
     pathMem = svgMem.selectAll("path")
                 .data(vizPieMem(mems))
                 .enter()
@@ -119,6 +120,49 @@ function setup(jsonData) {
         .enter().append("path")
         .attr("class", "arc");
 
+    var nameLists = determineNames(jsonData);
+    var namesCPU = nameLists[0];
+    var namesMem = nameLists[1];
+
+    cpu_label_group = d3.select("#cpuContainer svg").append("g")
+                    .attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
+
+    cpu_label_text = cpu_label_group.selectAll("text")
+        .data(vizPieCPU(cpus))
+        .enter()
+        .append("text")
+        .attr("transform", function(d) {return "translate(" + arcCPU.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("font-size", "8px")
+        .text(function(d,i) { return namesCPU[i]; });
+
+    cpu_label_text.transition()
+        .duration(1000)
+        .attr("d", arcCPU)
+        .each(function(d) { this._current = d; });
+
+
+    mem_label_group = d3.select("#memContainer svg").append("g")
+                    .attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
+
+    mem_label_text = mem_label_group.selectAll("text")
+        .data(vizPieMem(mems))
+        .enter()
+        .append("text")
+        .attr("transform", function(d) {return "translate(" + arcMem.centroid(d) + ")"; })
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .style("font-size", "8px")
+        .text(function(d,i) { return namesMem[i]; });
+
+    mem_label_text.transition()
+        .duration(1000)
+        .attr("d", arcCPU)
+        .each(function(d) { this._current = d; });
+
+
+        // .attr("transform", function(d) {return "translate(" + arcCPU.centroid(d) + ")"; })
 
 
     // // Add loading text.
@@ -210,7 +254,7 @@ function createProcessMenu(id, processList, container) {
         });
         container.append(menu);
 
-        
+
 
         process = getArrayEltByProp(processList, 'id', id);
         mem = convertMetric(process.memory);
@@ -331,7 +375,7 @@ function determineNames(jsonData) {
     var namesCPU = [];
     var namesMem = [];
 
-    var titleThreshold = .07;
+    var titleThreshold = 0.05;
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
@@ -439,8 +483,8 @@ function displayData(jsonData) {
     }
 
     var nameLists = determineNames(jsonData);
-    var nameCPU = nameLists[0];
-    var nameMem = nameLists[1];
+    var namesCPU = nameLists[0];
+    var namesMem = nameLists[1];
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
@@ -448,6 +492,77 @@ function displayData(jsonData) {
 
     pathMem.data(vizPieMem(mems));
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
+
+    cpu_label_group.selectAll("text")
+        .data(vizPieCPU(cpus))
+        .transition()
+        .duration(1000)
+        .attr("transform", function(d) {return "translate(" + arcCPU.centroid(d) + ")"; });
+
+    mem_label_group.selectAll("text")
+        .data(vizPieMem(mems))
+        .transition()
+        .duration(1000)
+        .attr("transform", function(d) {return "translate(" + arcMem.centroid(d) + ")"; });
+
+    // label_text.transition().duration(1000).attrTween("d", arcCPUTextTween);
+
+    // textLabels = label_group.selectAll("text")
+    //                 .data(vizPieCPU(cpus))
+    //                 .attr("dy", function(d){
+    //                   if ((d.startAngle+d.endAngle)/2 > Math.PI/2 && (d.startAngle+d.endAngle)/2 < Math.PI*1.5 ) {
+    //                     return 17;
+    //                   } else {
+    //                     return 5;
+    //                   }
+    //                 })
+
+    //                 // .attr("text-anchor", function(d){
+    //                 //   if ((d.startAngle+d.endAngle)/2 < Math.PI ) {
+    //                 //     return "beginning";
+    //                 //   } else {
+    //                 //     return "end";
+    //                 //   }})
+    //                 .text(function(d,i) { return namesCPU[i]; });
+    // textOffset = 14;
+
+    // textLabels.enter().append("text")
+    //     .style("font-size","8px")
+    //     .attr("transform", function(d) {
+    //       return "translate(" + Math.cos(((d.startAngle+d.endAngle - Math.PI)/2)) * (radius+textOffset) + "," + Math.sin((d.startAngle+d.endAngle - Math.PI)/2) * (radius+textOffset) + ")";
+    //     })
+    //     .attr("text-anchor", "middle")
+    //     // .attr("dy", function(d){
+    //     //   if ((d.startAngle+d.endAngle)/2 > Math.PI/2 && (d.startAngle+d.endAngle)/2 < Math.PI*1.5 ) {
+    //     //     return 17;
+    //     //   } else {
+    //     //     return 5;
+    //     //   }
+    //     // })
+    //     // .attr("text-anchor", function(d){
+    //     //   if ((d.startAngle+d.endAngle)/2 < Math.PI ) {
+    //     //     return "beginning";
+    //     //   } else {
+    //     //     return "end";
+    //     //   }
+    //     // })
+    //     .text(function(d,i){
+    //       return namesCPU[i];
+    //     });
+
+    // textLabels.transition()
+    //     .duration(1000)
+    //     .attrTween("transform", arcCPUTextTween);
+
+    // label_group.selectAll("text")
+    //     .data(vizPieCPU(cpus))
+    //     .enter()
+    //     .append("text")
+    //     .attr("transform", function(d) {return "translate(" + arcCPU.centroid(d) + ")"; })
+    //     .attr("dy", ".35em")
+    //     .style("text-anchor", "middle")
+    //     .style("font-size", "8px")
+    //     .text(function(d,i) { return namesCPU[i]; });
 
     // click handlers for wedges
     svgCPU.selectAll('path').each(function(d, i) {
@@ -459,169 +574,6 @@ function displayData(jsonData) {
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
-
-
-    // Define svg canvas
-    // svgCPU = d3.select("#cpuContainer").append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
-    // Define svg canvas
-    // svgMem = d3.select("#memContainer").append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
-
-    // arcCPU = d3.svg.arc()
-    //     .innerRadius(radius - 50)
-    //     .outerRadius(radius);
-
-    // arcMem = d3.svg.arc()
-    //     .innerRadius(radius - 50)
-    //     .outerRadius(radius);
-
-    // pathCPU = svgCPU.datum(cpus).selectAll("path")
-    //                       .data(vizPieCPU)
-    //                       .attr("d", arc)
-    // pathCPU = svgCPU.selectAll("path")
-    //             .data(vizPieCPU(cpus))
-    //             .enter()
-    //             .append("path")
-    //             .attr("d", arc);
-
-    // pathMem = svgMem.datum(mems).selectAll("path")
-    //                       .data(vizPieMem)
-    //                       .attr("d", arc)
-
-    // Defines arcs
-// <<<<<<< Updated upstream
-    // gCPU = svgCPU.selectAll(".arc")
-    //     .data(vizPieCPU(cpus))
-    //     .enter().append("g")
-    //     .attr("class", "arc")
-    //     .style("stroke-width", 3);
-
-    // gMem = svgMem.selectAll(".arc")
-    //     .data(vizPieMem(mems))
-    //     .enter().append("g")
-    //     .attr("class", "arc")
-    //     .style("stroke-width", 3);
-
-    // // Draws and colors
-    // gCPU.append("path")
-    //   .attr("d", arcCPU)
-    //   .style("fill", function(d, i) { return color(i); });
-
-    // // Draws and colors
-    // gMem.append("path")
-    //   .attr("d", arcMem)
-    //   .style("fill", function(d, i) { return color(i); });
-
-    // // svgCPU.selectAll('path').each(function(d, i) {
-    // //     $(this).attr('id', jsonData[i].id)
-    // //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
-    // // });
-
-    // // svgMem.selectAll('path').each(function(d, i) {
-    // //     // debugger;
-    // //     $(this).attr('id', jsonData[i].id)
-    // //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
-    // // });
-
-    // // gCPU.append("text")
-    // //   .attr("transform", function(d) { return "translate(" + arcCPU.centroid(d) + ")"; })
-    // //   .attr("dy", ".35em")
-    // //   .style("text-anchor", "middle")
-    // //   .style("font-size","8px")
-    // //   .data(names)
-    // //   .text(function(d, i) {return d; });
-
-    // gMem.append("text")
-    //   .attr("transform", function(d) { return "translate(" + arcMem.centroid(d) + ")"; })
-    //   .attr("dy", ".35em")
-    //   .style("text-anchor", "middle")
-    //   .style("font-size","8px")
-    //   .data(names)
-    //   .text(function(d, i) {return d; });
-
-    // // gCPU.append("text")
-    // //     .style("text-anchor", "middle")
-    // //     .style("font-size","24px")
-    // //     .text("CPU Usage");
-
-    // gMem.append("text")
-    //     .style("text-anchor", "middle")
-    //     .style("font-size","24px")
-    //     .text("Memory Usage");
-// =======
-    // gCPU = svgCPU.selectAll(".arc")
-    //     .data(vizPieCPU(cpus))
-    //     .enter().append("g")
-    //     .attr("class", "arc")
-    //     .style("stroke-width", 4);
-
-    // gMem = svgMem.selectAll(".arc")
-    //     .data(vizPieMem(mems))
-    //     .enter().append("g")
-    //     .attr("class", "arc")
-    //     .style("stroke-width", 4);
-
-    // // Draws and colors
-    // gCPU.append("path")
-    //   .attr("d", arcCPU)
-    //   .attr("class", "dough")
-    //   .style("fill", function(d, i) { return color(i); });
-
-    // // Draws and colors
-    // gMem.append("path")
-    //   .attr("d", arcMem)
-    //   .attr("class", "dough")
-    //   .style("fill", function(d, i) { return color(i); });
-
-    // svgCPU.selectAll('path').each(function(d, i) {
-    //     $(this).attr('id', jsonData[i].id)
-    //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
-    // });
-
-    // svgMem.selectAll('path').each(function(d, i) {
-    //     // debugger;
-    //     $(this).attr('id', jsonData[i].id)
-    //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
-    // });
-
-    // gCPU.append("text")
-    //   .attr("transform", function(d) { return "translate(" + arcCPU.centroid(d) + ")"; })
-    //   .attr("dy", ".35em")
-    //   .style("text-anchor", "middle")
-    //   .style("font-size","8px")
-    //   .data(namesCPU)
-    //   .text(function(d, i) {return d; });
-
-    // gMem.append("text")
-    //   .attr("transform", function(d) { return "translate(" + arcMem.centroid(d) + ")"; })
-    //   .attr("dy", ".35em")
-    //   .style("text-anchor", "middle")
-    //   .style("font-size","8px")
-    //   .data(namesMem)
-    //   .text(function(d, i) {return d; });
-
-    // gCPU.append("text")
-    //     .style("text-anchor", "middle")
-    //     .style("filter", "none")
-    //     .style("font-size","24px")
-    //     .text("CPU Usage");
-
-    // gMem.append("text")
-    //     .style("text-anchor", "middle")
-    //     .style("font-size","24px")
-    //     .style("filter", "none")
-    //     .text("Memory Usage");
-// >>>>>>> Stashed changes
-
 }
 
 function arcCPUTween(a) {
@@ -631,6 +583,15 @@ function arcCPUTween(a) {
     return arcCPU(i(t));
   };
 }
+
+function arcCPUTextTween(a) {
+  var i = d3.interpolate(this._current, a);
+  this._current = i(0);
+  return function(t) {
+    return arcCPU(i(t));
+  };
+}
+
 
 function arcMemTween(a) {
   var i = d3.interpolate(this._current, a);
