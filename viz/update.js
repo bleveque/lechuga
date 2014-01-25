@@ -9,6 +9,7 @@ var cpus;
 var arc;
 var svg;
 var g;
+var lastData;
 var path;
 var vizPie = d3.layout.pie()
     .sort(null)
@@ -35,11 +36,30 @@ function setup() {
         .attr("class", "arc");
 
     g.append("path").attr("d", arc);
+
+    lastData = cpus;
     
 }
 
 function displayData(jsonData) {
     $('#annulusContainer').empty(); // Clear
+
+    svg = d3.select("#annulusContainer").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
+    arc = d3.svg.arc()
+        .innerRadius(radius - 80)
+        .outerRadius(radius - 10);
+
+    g = svg.selectAll(".arc")
+        .data(vizPie(lastData))
+        .enter().append("g")
+        .attr("class", "arc");
+
+    g.append("path").attr("d", arc);
     
     // Build dataset from JSON object
     cpus = [];
@@ -48,6 +68,7 @@ function displayData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
+    lastData = cpus;
 
     names = []
     for (item in jsonData) {
