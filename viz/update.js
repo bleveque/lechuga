@@ -62,12 +62,12 @@ function setup() {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-    gCPU = svgCPU.selectAll(".svgCPU .arc")
+    gCPU = svgCPU.selectAll(".arc")
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc");
 
-    gMem = svgMem.selectAll(".svgMem .arc")
+    gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc");
@@ -124,9 +124,9 @@ function createProcessMenu(id, processList, container) {
             $('#procMenu').remove();
             shouldUpdate = true;
         });
-        
-        var left = evt.offsetX,
-            top = evt.offsetY,
+        // debugger;
+        var left = evt.clientX,
+            top = evt.clientY,
             menu = $(document.createElement('div')),
             nameDiv = $(document.createElement('div')),
             memDiv = $(document.createElement('div')),
@@ -332,22 +332,22 @@ function displayData(jsonData) {
         .outerRadius(radius);
 
 
-    pathCPU = svgCPU.datum(cpus).selectAll(".svgCPU path")
+    pathCPU = svgCPU.datum(cpus).selectAll("path")
                           .data(vizPieCPU)
                           .attr("d", arc)
 
-    pathMem = svgMem.datum(mems).selectAll(".svgMem path")
+    pathMem = svgMem.datum(mems).selectAll("path")
                           .data(vizPieMem)
                           .attr("d", arc)
 
     // Defines arcs
-    gCPU = svgCPU.selectAll(".svgCPU .arc")
+    gCPU = svgCPU.selectAll(".arc")
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc")
         .style("stroke-width", 3);
 
-    gMem = svgMem.selectAll(".svgMem .arc")
+    gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc")
@@ -363,12 +363,13 @@ function displayData(jsonData) {
       .attr("d", arcMem)
       .style("fill", function(d, i) { return color(i); });
 
-    svgCPU.selectAll('.svgCPU path').each(function(d, i) {
+    svgCPU.selectAll('path').each(function(d, i) {
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
 
-    svgMem.selectAll('.svgMem path').each(function(d, i) {
+    svgMem.selectAll('path').each(function(d, i) {
+        // debugger;
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
