@@ -26,6 +26,12 @@ function setup() {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
+    var line = d3.append("line")
+                 .attr("x1", 5)
+                 .attr("y1", 5)
+                 .attr("x2", 55)
+                 .attr("y2", 55);
+
     arc = d3.svg.arc()
         .innerRadius(radius - 50)
         .outerRadius(radius);
@@ -116,15 +122,22 @@ function displayData(jsonData) {
 
                     if (jsonData[item].info.title.length >= 10) {
                         var url = jsonData[item].info.url
-                        title = url.match(/\.{1}\w+\.{1}/g)
+                        title = url.match(/[^w]\w+\.{1}/g)
                         
                         if (title == null) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
                         else {
+                            if (title[0][0].match(/\w/g)){
+                                // first char is alpha, so slice from there
+                                finalTitle = title[0].slice(0,-1);
+                                names.push(finalTitle);
+                            }
+                            else {
+                                finalTitle = title[0].slice(1,-1);
+                                names.push(finalTitle);
+                            }
                             
-                            finalTitle = title[0].slice(1,-2);
-                            names.push(finalTitle);
                         }
                         
                     }
