@@ -16,3 +16,11 @@ body {
 	position: relative;
 	width: 100%;
 }
+
+#procMenu {
+	background-color: #222222;
+	border-radius: 5px;
+	color: white;
+	height: 100px;
+	width: 200px;
+}

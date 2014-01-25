@@ -1,6 +1,5 @@
 var update = (function() {
 
-
 //Width and height
 var width = 500;
 var height = 1000;
@@ -104,7 +103,6 @@ function displayData(jsonData) {
     path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
 
    }
-
 // During the transition, _current is updated in-place by d3.interpolate.
 function arcTween(a) {
   var i = d3.interpolate(this._current, a);
