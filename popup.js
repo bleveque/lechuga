@@ -122,7 +122,11 @@ var Popup = (function() {
 	}
 
     function get_proc_info(process, callback) {
-        var info = {};
+        var info = {
+            id: process.id,
+            network: process.network,
+            cpu: process.cpu,
+        };
 
         if (process.tabs.length === 1) {
             // This is a tab process
@@ -147,7 +151,6 @@ var Popup = (function() {
         //     console.log("TYPE:", process.type, "TABS:", process.tabs);
         // }
 
-        return info;
     }
 
 	return {
