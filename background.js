@@ -20,6 +20,30 @@ var BrowserUtils = (function() {
 		array.push(newElt);
 	}
 
+    function convert(bigArray, prop) {
+        var snapshot,
+            proc,
+            i, j,
+            ret = {},
+            name,
+            k,
+            longestArrayLength = 0;
+        for(i=0;i<bigArray.length;i++) {
+            snapshot = bigArray[i];
+            for(j=0;j<snapshot.length;j++) {
+                proc = snapshot[j];
+                name = proc.info.type === 'tab' ? proc.info.name : proc.info.type;
+                if(!ret[name]) {
+                    ret[name] = [];
+                    for(k=0;k<i-1;k++) {
+                        ret[name].push(0);
+                    }
+                }
+                ret[name].push(proc[prop]);
+            }
+        }
+    }
+
     function formatProcHistory(procHistory) {
         console.log(procHistory);
         var newProcHistory = {},
@@ -35,12 +59,11 @@ var BrowserUtils = (function() {
             for (col = 0; col < procz.length; col++) {
                 proc = procz[col];
                 procName = proc.info.title || proc.info.type;
-                if (!(col in newProcHistory)) {
+                if (!(procName in newProcHistory)) {
                     console.log(col, row);
-                    newProcHistory[col] = []
-                    // newProcHistory[col] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
+                    newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
                 }
-                newProcHistory[col].push(procHistory[col][row].cpu);
+                newProcHistory[procName] += proc.cpu);
                 if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
                     console.log(procName, row)
                 }
