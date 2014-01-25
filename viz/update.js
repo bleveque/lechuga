@@ -74,7 +74,7 @@ function setup(jsonData) {
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
-
+                
     pathMem = svgMem.selectAll("path")
                 .data(vizPieMem(mems))
                 .enter()
@@ -94,10 +94,17 @@ function setup(jsonData) {
     //     .enter().append("path");
     //     // .attr("class", "arc");
 
-    // gMem = svgMem.selectAll(".arc")
-    //     .data(vizPieMem(mems))
+    // gCPU = svgCPU.selectAll(".arc")
+    //     .data(vizPieCPU(cpus))
     //     .enter().append("path")
     //     .attr("class", "arc");
+
+    gMem = svgMem.selectAll(".arc")
+        .data(vizPieMem(mems))
+        .enter().append("path")
+        .attr("class", "arc");
+
+
 
     // // Add loading text.
     // gCPU.append("text")
@@ -377,13 +384,23 @@ function displayData(jsonData) {
             }
         }
     }
-    console.log("---B---")
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
 
     pathMem.data(vizPieMem(mems));
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
+
+   
+    svgCPU.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("CPU Usage");
+
+    svgMem.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Mem Usage");
 
     // Define svg canvas
     // svgCPU = d3.select("#cpuContainer").append("svg")
