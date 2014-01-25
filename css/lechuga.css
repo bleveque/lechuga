@@ -3,6 +3,22 @@
 	padding: 0px;
 }
 
+#annulusContainer {
+	height: 80%;
+	position: absolute;
+	top: 10%;
+	width: 40%;
+}
+
+#annulusTitle {
+	font-size: 30px;
+	position: absolute;
+	text-align: center;
+	top: 40%;
+	width: 40%;
+
+}
+
 body {
 	border-radius: 5px;
 	font-family: 'Duru Sans', Arial, sans-serif;
@@ -12,6 +28,7 @@ body {
 }
 
 #content {
+	height: 330px;
 	left: 2%;
 	position: absolute;
 	top: 65px;

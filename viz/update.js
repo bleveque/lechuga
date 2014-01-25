@@ -1,8 +1,8 @@
 var update = (function() {
 
 //Width and height
-var width = 300;
-var height = 300;
+var width = '300';
+var height = '300';
 var radius = Math.min(width, height) / 2;
 var color = d3.scale.category20();
 var cpus;
@@ -17,12 +17,13 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = []
+    cpus = [1,2,3]
 
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
-        .attr("width", width)
+        //.attr("style", 'width:'+width+";height:"+height+";")
         .attr("height", height)
+        .attr("width", width)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
