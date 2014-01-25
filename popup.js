@@ -2,21 +2,25 @@ var Popup = (function() {
 
 	window.onload = load;
 
-	var historyLength = 10;
-
-	var procs = [],
-		procHistory = [];
-
-	var networkStats = {},
-		cpuStats = {},
-		memoryStats = {};
-
 	function load() {
 		console.log(chrome.browsingData);
 		console.log(chrome.processes);
-		setUpListeners();
+		BrowserUtils.setUpListeners();
 	}
+})();
 
+var BrowserUtils = (function() {
+	var historyLength = 10,
+		procs = [], // last updated process list
+		procHistory = [], // history of historyLength previous process lists
+		networkStats = {},
+		cpuStats = {},
+		memoryStats = {};
+
+	/**
+	 * Pushes a new element to an array of max length maxLength
+	 * If maxLength would be exceeded, removes the first element before pushing
+	 */
 	function lettucePush(array, newElt, maxLength) {
 		maxLength = maxLength || 10;
 		if(array.length >= maxLength) {
@@ -60,10 +64,16 @@ var Popup = (function() {
 		return infoArray;
 	}
 
+	/**
+	 * Get array of network information using extractInfoArray
+	 */
 	function getNetworkInfo(processes) {
 		return extractInfoArray(processes, 'network');
 	}
 
+	/**
+	 * Get array of cpu information using extractInfoArray
+	 */
 	function getCpuInfo(processes) {
 		return extractInfoArray(processes, 'cpu');
 	}
@@ -160,7 +170,7 @@ var Popup = (function() {
 		getProcesses: getProcesses,
 		getNetworkInfo: getNetworkInfo,
 		getCpuInfo: getCpuInfo,
-		getProcessHistory: getProcessHistory
-
+		getProcessHistory: getProcessHistory,
+		setUpListeners: setUpListeners
 	}
 })();
