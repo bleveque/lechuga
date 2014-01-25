@@ -21,6 +21,7 @@ var BrowserUtils = (function() {
 	}
 
     function formatProcHistory(procHistory) {
+        console.log(procHistory);
         var newProcHistory = {},
             row,
             col,
@@ -28,16 +29,24 @@ var BrowserUtils = (function() {
             procName,
             procz;
 
+        // Initialize newProcHistory attributes with zeros
         for (row = 0; row < procHistory.length; row++) {
             procz = procHistory[row];
-            console.log(procz.length, procz, procHistory[row].length);
             for (col = 0; col < procz.length; col++) {
                 proc = procz[col];
                 procName = proc.info.title || proc.info.type;
-                if (!(procName in newProcHistory)) {
-                    newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
+                if (!(col in newProcHistory)) {
+                    console.log(col, row);
+                    newProcHistory[col] = []
+                    // newProcHistory[col] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
                 }
+                newProcHistory[col].push(procHistory[col][row].cpu);
+                if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
+                    console.log(procName, row)
+                }
+                // console.log(procName, row, newProcHistory[procName][row]);
             }
+            // console.log(newProcHistory, row);
         }
 
         // var newProcHistory = {};
@@ -57,7 +66,8 @@ var BrowserUtils = (function() {
         //         }
         //     }
         // }
-        // console.log("NEWPROCHISTORY:", newProcHistory);
+        console.log("NEWPROCHISTORY", newProcHistory[3]);
+        // console.log("NEWPROCHISTORY:", newProcHistory['▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube']);
         return newProcHistory;
 
     }
@@ -138,7 +148,7 @@ var BrowserUtils = (function() {
             var processesArray = [];
 			procs.length = 0; // clear procs array
 			for(id in processes) {
-				if(processes.hasOwnProperty(id)) {
+                if(processes.hasOwnProperty(id)) {
                     processesArray.push(processes[id]);
 					// get_proc_info(processes[id], function(proc) {
 					// 	procs.push(proc);
@@ -149,7 +159,6 @@ var BrowserUtils = (function() {
 
             get_proc_info(processesArray, function() {
     			lettucePush(procHistory, procs, historyLength);
-                // console.log(procHistory);
                 formatProcHistory(procHistory);
                 sendProcData(procs);
     			// update.displayData(procs);
