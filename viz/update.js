@@ -43,7 +43,7 @@ function displayData(jsonData) {
             var barHeight = d * 10;
             return barHeight + "px";
         });
-   }
+}
 
 
 return {displayData: displayData,
