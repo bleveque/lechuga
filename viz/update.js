@@ -275,17 +275,7 @@ function convertMetric(input) {
     return input.toFixed(2) + units[reductions];
 }
 
-/**
- * Update the d3 elements
- * @param jsonData    an array of processes
- */
-function displayData(jsonData) {
-
-    if(!shouldUpdate) {
-        return;
-    }
-    // $('#cpuContainer').empty(); // Clear
-    // $('#memContainer').empty(); // Clear
+function determineNames(jsonData) {
 
     jsonData = filterProcesses(jsonData);
     cpus = [];
@@ -303,12 +293,15 @@ function displayData(jsonData) {
     for(var i=0, len=cpus.length; i<len; i++){
         totalCPU += cpus[i];  //Iterate over your first array and then grab the second element add the values up
     }
+
     if (totalCPU === 0) {
         return;
     }
-    for(var i=0, len=mems.length; i<len; i++){
+
+    for(var i=0, len=mems.length; i<len; i++) {
         totalMem += mems[i];  //Iterate over your first array and then grab the second element add the values up
     }
+
     if (totalMem === 0) {
         return;
     }
@@ -316,11 +309,10 @@ function displayData(jsonData) {
     $('#loading').empty(); // Clear
     $('#filters').css('display','block');
 
-    namesCPU = []
-    namesMem = []
+    var namesCPU = [];
+    var namesMem = [];
 
     var titleThreshold = .07;
-
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
@@ -337,8 +329,7 @@ function displayData(jsonData) {
 
                         if (title == null) {
                             namesMem.push(jsonData[item].info.title.slice(1,10))
-                        }
-                        else {
+                        } else {
                             var matchNum = 0;
                             if (title[matchNum].match(/www/g)) {
                                 matchNum += 1
@@ -347,22 +338,21 @@ function displayData(jsonData) {
                                 // first char is alpha, so slice from there
                                 finalTitle = title[matchNum].slice(0,-1);
                                 namesMem.push(finalTitle);
-                            }
-                            else {
+                            } else {
                                 finalTitle = title[matchNum].slice(1,-1);
                                 namesMem.push(finalTitle);
                             }
 
                         }
-                    }
-                    else {
+                    } else {
                         namesMem.push(jsonData[item].info.title);
                     }
-                }
-                else {
+                } else {
                     namesMem.push(jsonData[item].info.type);
                 }
             }
+
+
             if ((jsonData[item].cpu / totalCPU) < titleThreshold) {
                 // Not one of the bigger processes w.r.t. cpu, so set its title to a blank string
                 namesCPU.push("");
@@ -393,8 +383,7 @@ function displayData(jsonData) {
                                 namesCPU.push(finalTitle);
                             }
                         }
-                    }
-                    else {
+                    } else {
                         namesCPU.push(jsonData[item].info.title);
                     }
                 }
@@ -404,6 +393,26 @@ function displayData(jsonData) {
             }
         }
     }
+    return [namesCPU, namesMem];
+}
+
+
+
+/**
+ * Update the d3 elements
+ * @param jsonData    an array of processes
+ */
+function displayData(jsonData) {
+
+    if(!shouldUpdate) {
+        return;
+    }
+    // $('#cpuContainer').empty(); // Clear
+    // $('#memContainer').empty(); // Clear
+
+    var nameLists = determineNames(jsonData);
+    var nameCPU = nameLists[0];
+    var nameMem = nameLists[1];
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
@@ -423,8 +432,6 @@ function displayData(jsonData) {
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
 
-   
-    
 
     // Define svg canvas
     // svgCPU = d3.select("#cpuContainer").append("svg")
@@ -587,7 +594,7 @@ function displayData(jsonData) {
     //     .text("Memory Usage");
 // >>>>>>> Stashed changes
 
-   }
+}
 
 function arcCPUTween(a) {
   var i = d3.interpolate(this._current, a);
