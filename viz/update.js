@@ -166,10 +166,8 @@ function createProcessMenu(id, processList, container) {
         container = container || $('#lettuceWrap');
         menu.attr('id', 'procMenu');
         menu.css({
-            position: 'absolute',
             left: left + 'px',
             top: top + 'px',
-            background: 'rgba(255,100,0,0.85)'
         });
         container.append(menu);
 
@@ -377,7 +375,7 @@ function displayData(jsonData) {
             }
         }
     }
-    console.log("---B---")
+    console.log("---B---");
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
@@ -422,6 +420,7 @@ function displayData(jsonData) {
     //                       .attr("d", arc)
 
     // Defines arcs
+// <<<<<<< Updated upstream
     // gCPU = svgCPU.selectAll(".arc")
     //     .data(vizPieCPU(cpus))
     //     .enter().append("g")
@@ -480,10 +479,74 @@ function displayData(jsonData) {
     //     .style("text-anchor", "middle")
     //     .style("font-size","24px")
     //     .text("Memory Usage");
+// =======
+    // gCPU = svgCPU.selectAll(".arc")
+    //     .data(vizPieCPU(cpus))
+    //     .enter().append("g")
+    //     .attr("class", "arc")
+    //     .style("stroke-width", 4);
+
+    // gMem = svgMem.selectAll(".arc")
+    //     .data(vizPieMem(mems))
+    //     .enter().append("g")
+    //     .attr("class", "arc")
+    //     .style("stroke-width", 4);
+
+    // // Draws and colors
+    // gCPU.append("path")
+    //   .attr("d", arcCPU)
+    //   .attr("class", "dough")
+    //   .style("fill", function(d, i) { return color(i); });
+
+    // // Draws and colors
+    // gMem.append("path")
+    //   .attr("d", arcMem)
+    //   .attr("class", "dough")
+    //   .style("fill", function(d, i) { return color(i); });
+
+    // svgCPU.selectAll('path').each(function(d, i) {
+    //     $(this).attr('id', jsonData[i].id)
+    //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    // });
+
+    // svgMem.selectAll('path').each(function(d, i) {
+    //     // debugger;
+    //     $(this).attr('id', jsonData[i].id)
+    //     $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    // });
+
+    // gCPU.append("text")
+    //   .attr("transform", function(d) { return "translate(" + arcCPU.centroid(d) + ")"; })
+    //   .attr("dy", ".35em")
+    //   .style("text-anchor", "middle")
+    //   .style("font-size","8px")
+    //   .data(namesCPU)
+    //   .text(function(d, i) {return d; });
+
+    // gMem.append("text")
+    //   .attr("transform", function(d) { return "translate(" + arcMem.centroid(d) + ")"; })
+    //   .attr("dy", ".35em")
+    //   .style("text-anchor", "middle")
+    //   .style("font-size","8px")
+    //   .data(namesMem)
+    //   .text(function(d, i) {return d; });
+
+    // gCPU.append("text")
+    //     .style("text-anchor", "middle")
+    //     .style("filter", "none")
+    //     .style("font-size","24px")
+    //     .text("CPU Usage");
+
+    // gMem.append("text")
+    //     .style("text-anchor", "middle")
+    //     .style("font-size","24px")
+    //     .style("filter", "none")
+    //     .text("Memory Usage");
+// >>>>>>> Stashed changes
 
    }
 
-   function arcCPUTween(a) {
+function arcCPUTween(a) {
   var i = d3.interpolate(this._current, a);
   this._current = i(0);
   return function(t) {
@@ -491,7 +554,7 @@ function displayData(jsonData) {
   };
 }
 
-   function arcMemTween(a) {
+function arcMemTween(a) {
   var i = d3.interpolate(this._current, a);
   this._current = i(0);
   return function(t) {

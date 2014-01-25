@@ -3,19 +3,6 @@
 	padding: 0px;
 }
 
-#cpuContainer {
-	float: left;
-	position: absolute;
-	margin: 2%;
-	width: 305px;
-	height: 305px;
-}
-
-#cpuContainer>svg{
-    -webkit-filter: drop-shadow( 0px 5px 5px #7EBA8C );
-            filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
-}
-
 #annulusTitle {
 	font-size: 30px;
 	position: absolute;
@@ -57,11 +44,23 @@ body {
 	width: 96%;
 }
 
+#cpuContainer {
+	float: left;
+	position: absolute;
+	margin: 2%;
+	width: 305px;
+	height: 305px;
+}
+
+#cpuContainer>svg{
+    -webkit-filter: drop-shadow( 0px 5px 5px #7EBA8C );
+            filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
+}
+
 #filters {
 	display: none;
-	/*margin-left: 75%;*/
 	position: absolute;
-	left: 320px;
+	left: 315px;
 	text-align: center;
 	top: 100px;
 }
@@ -71,14 +70,21 @@ body {
 }
 
 #lettuceWrap {
-	background: #eeeeee; /*url('squared_metal/squared_metal.png');*/
+	background: #eeeeee;
 	height: 100%;
 	position: relative;
 	width: 100%;
 }
 
 #loading {
-	clear:both;
+	position: absolute;
+	text-align: center;
+	top: 100px;
+	width: 100%;
+}
+
+#loading p {
+	text-align: center;
 }
 
 #memContainer {
@@ -94,10 +100,11 @@ body {
 }
 
 #procMenu {
-	background-color: #222222;
+	background-color: rgba(50,50,50,0.85);
 	border-radius: 5px;
 	color: white;
 	height: 100px;
+	position: absolute;
 	width: 200px;
 }
 #procMenu>button {
