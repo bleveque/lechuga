@@ -331,7 +331,6 @@ function displayData(jsonData) {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-
     pathCPU = svgCPU.datum(cpus).selectAll("path")
                           .data(vizPieCPU)
                           .attr("d", arc)
