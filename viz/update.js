@@ -35,7 +35,7 @@ function setup() {
         .enter().append("g")
         .attr("class", "arc");
 
-    g.append("path").attr("d", arc);
+    // g.append("path").attr("d", arc);
 
     // lastData = cpus;
     
@@ -60,7 +60,7 @@ function displayData(jsonData) {
     //     .attr("class", "arc");
 
     // g.append("path").attr("d", arc);
-    
+
     // Build dataset from JSON object
     cpus = [];
     for (item in jsonData) {
@@ -68,43 +68,62 @@ function displayData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
+
+    // For finding maxes
+    var dummyCPUS = cpus.slice(0);
+
+    maxCPUVals = [];
+    for(var i=0;i<4;i++) {
+        var maxVal = Math.max.apply(Math, dummyCPUS);
+        maxCPUVals.push(maxVal);
+        var index = dummyCPUS.indexOf(maxVal);
+        if (index > -1) {
+            dummyCPUS.splice(index, 1);
+        }
+    }
+
     // lastData = cpus;
+
+    console.log("MAXVALS: " + maxCPUVals)
 
     names = []
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if (jsonData[item].info.type == "tab") {
+            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+                // Not one of the bigger processes, so set its title to a blank string
+                console.log("one: " + jsonData[item].cpu);
+                names.push("");
+            }
+            else{
+                // one of max vals, get real name
+                if (jsonData[item].info.type == "tab") {
 
-                if (jsonData[item].info.title.length >= 10) {
-                    var url = jsonData[item].info.url
-                    console.log(url)
-                    title = url.match(/\.{1}\w+\.{1}/g)
-                    
-                    console.log("title: " + title)
-
-                    if (title == null) {
-                        names.push(jsonData[item].info.title.slice(1,10))
+                    if (jsonData[item].info.title.length >= 10) {
+                        var url = jsonData[item].info.url
+                        title = url.match(/\.{1}\w+\.{1}/g)
+                        
+                        if (title == null) {
+                            names.push(jsonData[item].info.title.slice(1,10))
+                        }
+                        else {
+                            
+                            finalTitle = title[0].slice(1,-2);
+                            names.push(finalTitle);
+                        }
+                        
                     }
                     else {
-                        
-                        finalTitle = title[0].slice(1,-2);
-                        console.log(finalTitle);
-                        names.push(finalTitle);
+                        names.push(jsonData[item].info.title);
                     }
-                    
                 }
                 else {
-                    names.push(jsonData[item].info.title);
+                    names.push(jsonData[item].info.type);
                 }
-            }
-            else {
-                names.push(jsonData[item].info.type);
             }
         }
     }
 
-    console.log()
 
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")
@@ -140,7 +159,12 @@ function displayData(jsonData) {
       .style("text-anchor", "middle")
       .style("font-size","8px")
       .data(names)
-      .text(function(d) { return d; });
+      .text(function(d, i) {return d; });
+
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("CPU Usage");
 
    }
 
