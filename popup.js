@@ -5,6 +5,7 @@ var Popup = (function() {
 	function load() {
 		console.log(chrome.browsingData);
 		console.log(chrome.processes);
+        BrowserUtils.registerCallback(update.displayData);
 		BrowserUtils.setUpListeners();
 	}
 })();
@@ -15,7 +16,8 @@ var BrowserUtils = (function() {
 		procHistory = [], // history of historyLength previous process lists
 		networkStats = {},
 		cpuStats = {},
-		memoryStats = {};
+		memoryStats = {},
+        callbacks = [];
 
 	/**
 	 * Pushes a new element to an array of max length maxLength
@@ -78,8 +80,28 @@ var BrowserUtils = (function() {
 		return extractInfoArray(processes, 'cpu');
 	}
 
+    /**
+     * Adds a callback to the callbacks list. These callbacks are invoked with
+     * data from the chrome.processes api.
+     */
+    function registerCallback(callback) {
+        callbacks.push(callback)
+        console.log("CALLBACKS", callbacks)
+    }
+
+    /**
+     * Wrapper function that invokes each registered callback with the proc data.
+     */
+    function sendProcData(data) {
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+
 	/**
-	 * Set up chrome.processes listeners
+	 * Set up chrome.processes listeners.
+     * This adds a listener to chrome.processes, which retrieves information on
+     * all chrome processes, and sends formatted data to all registered callbacks.
 	 */
 	function setUpListeners() {
 		chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
@@ -94,42 +116,43 @@ var BrowserUtils = (function() {
 
 			lettucePush(procHistory, procs, historyLength);
 
-			update.displayData(procs);
+            sendProcData(procs);
+			// update.displayData(procs);
 
-			console.log(processes);
+			// console.log(processes);
 
-			console.log(procs);
+			// console.log(procs);
 
-			var i, id, text, processDiv;
-			for(id in processes) {
-				if(processes.hasOwnProperty(id)) {
+			// var i, id, text, processDiv;
+			// for(id in processes) {
+			// 	if(processes.hasOwnProperty(id)) {
 
-					networkStats[id] = processes[id].network;
-					cpuStats[id] = processes[id].cpu;
-					if(processes[id].network > 0) {
-						console.log(processes[id]);//"ID: " + process.osProcessId+", ")
-					}
-				}
-			}
-			for(id in networkStats) {
-				if(networkStats.hasOwnProperty(id)){
-					if($('#networkProcess_'+id).length > 0) {
-						text = $('#networkProcess_'+id).text();
-						$('#networkProcess_'+id).text(text + " | "+networkStats[id]);
+			// 		networkStats[id] = processes[id].network;
+			// 		cpuStats[id] = processes[id].cpu;
+			// 		if(processes[id].network > 0) {
+			// 			console.log(processes[id]);//"ID: " + process.osProcessId+", ")
+			// 		}
+			// 	}
+			// }
+			// for(id in networkStats) {
+			// 	if(networkStats.hasOwnProperty(id)){
+			// 		if($('#networkProcess_'+id).length > 0) {
+			// 			text = $('#networkProcess_'+id).text();
+			// 			$('#networkProcess_'+id).text(text + " | "+networkStats[id]);
 
-						text = $('#cpuProcess_'+id).text();
-						$('#cpuProcess_'+id).text(text + " | "+cpuStats[id].toFixed(3));
-					} else {
-						processDiv = $(document.createElement('div')).attr('id', 'networkProcess_'+id);
-						$('#networkStats').append(processDiv);
-						processDiv.text(id + " :: " + networkStats[id]);
+			// 			text = $('#cpuProcess_'+id).text();
+			// 			$('#cpuProcess_'+id).text(text + " | "+cpuStats[id].toFixed(3));
+			// 		} else {
+			// 			processDiv = $(document.createElement('div')).attr('id', 'networkProcess_'+id);
+			// 			$('#networkStats').append(processDiv);
+			// 			processDiv.text(id + " :: " + networkStats[id]);
 
-						processDiv = $(document.createElement('div')).attr('id', 'cpuProcess_'+id);
-						$('#cpuStats').append(processDiv);
-						processDiv.text(id + " :: " + cpuStats[id].toFixed(3));
-					}
-				}
-			}
+			// 			processDiv = $(document.createElement('div')).attr('id', 'cpuProcess_'+id);
+			// 			$('#cpuStats').append(processDiv);
+			// 			processDiv.text(id + " :: " + cpuStats[id].toFixed(3));
+			// 		}
+			// 	}
+			// }
 		});
 	}
 
@@ -168,6 +191,7 @@ var BrowserUtils = (function() {
 		getNetworkInfo: getNetworkInfo,
 		getCpuInfo: getCpuInfo,
 		getProcessHistory: getProcessHistory,
-		setUpListeners: setUpListeners
+		setUpListeners: setUpListeners,
+        registerCallback: registerCallback
 	}
 })();
