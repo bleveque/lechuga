@@ -30,7 +30,7 @@ var BrowserUtils = (function() {
 
         for (row = 0; row < procHistory.length; row++) {
             procz = procHistory[row];
-            console.log(procz.length, procz, procHistory[row].length);
+            // console.log(procz.length, procz, procHistory[row].length);
             for (col = 0; col < procz.length; col++) {
                 proc = procz[col];
                 procName = proc.info.title || proc.info.type;

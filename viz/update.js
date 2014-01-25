@@ -61,11 +61,43 @@ function setup() {
 }
 
 function displayData(jsonData) {
+    $('#lettuceWrap').empty();
+    
     cpus = [];
+    // debugger;
 
     for (item in jsonData) {
-      cpus.push(jsonData[item].cpu);
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
     }
+
+    svg = d3.select("#lettuceWrap").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
+
+    arc = d3.svg.arc()
+        .innerRadius(radius - 80)
+        .outerRadius(radius - 10);
+
+    console.log(vizPie(cpus));
+
+    g = svg.selectAll(".arc")
+        .data(vizPie(cpus))
+        .enter().append("g")
+        .attr("class", "arc");
+
+    g.append("path")
+      .attr("d", arc)
+      .style("fill", function(d) { return color(d); });
+
+    path = svg.datum(cpus).selectAll("path")
+              .data(vizPie)
+              .attr("d", arc)
+              .each(function(d) { this._current = d; }); // store the initial angles
 
     // d3.select("#lettuceWrap").selectAll("p")
     //     .data(cpus)
@@ -90,17 +122,19 @@ function displayData(jsonData) {
     // g.selectAll("path")
     //   .attr("d", arc)
     //   .style("fill", function(d) { return color(d); });
-
-    path = svg.datum(cpus).selectAll("path")
+    /**
+    path = svg.selectAll("path")
                           .attr("d", arc)
                           .data(vizPie)
     //                       .attr("fill", function(d, i) { return color(i); });
+    **/
 
     // path = path.data(vizPie);
     // path.attr("d", arc)
-    console.log("vizPie data?" + vizPie)
-
+    // console.log("vizPie data?" + vizPie)
+    /**
     path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+    **/
 
    }
 // During the transition, _current is updated in-place by d3.interpolate.
