@@ -38,21 +38,61 @@
         <script type="text/javascript">
             // Your beautiful D3 code will go here
             
-            /* === RANDOMIZED BARS ===
-            /*var dataset = [];                        //Initialize empty array
-            for (var i = 0; i < 50; i++) {           //Loop 25 times
-                var newNumber = Math.random() * 30;  //New random number (0-30)
-                dataset = dataset.concat(newNumber); //Add new number to array
+             // === RANDOMIZED BARS ===
+            // var dataset = [];                        //Initialize empty array
+            // for (var i = 0; i < 50; i++) {           //Loop 25 times
+            //     var newNumber = Math.random() * 30;  //New random number (0-30)
+            //     dataset = dataset.concat(newNumber); //Add new number to array
+            // }
+
+            jsonData = [{
+              "id": 0,
+              "network": 0,
+              "cpu": 1.38,
+              "info": {
+                "type": "browser"
+              }
+            }, {
+              "id": 1,
+              "network": 0,
+              "cpu": 0.2,
+              "info": {
+                "type": "gpu"
+              }
+            }, {
+              "id": 60,
+              "network": 2117,
+              "cpu": 0.6,
+              "info": {
+                "type": "tab",
+                "url": "http://www.twitter.com/"
+              }
+            }, {
+              "id": 71,
+              "network": 2147,
+              "cpu": 0.5,
+              "info": {
+                "type": "tab",
+                "url": "http://www.facebook.com/"
+              }
+            }];
+
+            cpus = [];
+
+            for (item in jsonData) {
+              cpus.push(jsonData[item].cpu);
             }
+
             d3.select("body").selectAll("div")
-                .data(dataset)
+                .data(cpus)
                 .enter()
                 .append("div")
                 .attr("class", "bar")  
                 .style("height", function(d) {
                     var barHeight = d * 5;  //Scale up by factor of 5
                     return barHeight + "px";
-                });*/
+                });
+
 
 
             /* === COLORED BARS ===
@@ -108,7 +148,7 @@
                .attr("font-family", "sans-serif")
                .attr("font-size", "11px")
                .attr("fill", "white");
-               === END COLORED BARS === */
+               === END COLORED BARS === 
 
             /* === SCATTERPLOT */
 
