@@ -27,7 +27,7 @@ function setup() {
             cpus.push(jsonData[item].cpu);
         }
     }
-    
+
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
         .attr({
@@ -97,7 +97,7 @@ function createProcessMenu(id, processList, container) {
             $('#procMenu').remove();
             shouldUpdate = true;
         });
-        
+
         var left = evt.offsetX,
             top = evt.offsetY,
             menu = $(document.createElement('div')),
@@ -214,7 +214,7 @@ function displayData(jsonData) {
                     if (jsonData[item].info.title.length >= 10) {
                         var url = jsonData[item].info.url
                         title = url.match(/[^w]\w+\.{1}/g)
-                        
+
                         if (title == null) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
@@ -232,9 +232,9 @@ function displayData(jsonData) {
                                 finalTitle = title[matchNum].slice(1,-1);
                                 names.push(finalTitle);
                             }
-                            
+
                         }
-                        
+
                     }
                     else {
                         names.push(jsonData[item].info.title);
@@ -293,6 +293,39 @@ function displayData(jsonData) {
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("CPU Usage");
+
+   }
+
+   function getCPUData(jsonData) {
+        var cpus = [];
+        for (item in jsonData) {
+            if(jsonData.hasOwnProperty(item)) {
+                cpus.push(jsonData[item].cpu);
+            }
+        }
+
+        var total = 0;  //Variable to hold your total
+
+        for(var i=0, len=cpus.length; i<len; i++){
+            total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+        }
+        if (total === 0) {
+            return;
+        }
+
+        var dummyCPUS = cpus.slice(0);
+
+        maxCPUVals = [];
+        for(var i=0;i<4;i++) {
+            var maxVal = Math.max.apply(Math, dummyCPUS);
+            maxCPUVals.push(maxVal);
+            var index = dummyCPUS.indexOf(maxVal);
+            if (index > -1) {
+                dummyCPUS.splice(index, 1);
+            }
+        }
+
+        return cpus;
 
    }
 
