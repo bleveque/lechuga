@@ -101,8 +101,14 @@ function createProcessMenu(id, processList, container) {
         var left = evt.offsetX,
             top = evt.offsetY,
             menu = $(document.createElement('div')),
+            nameDiv = $(document.createElement('div')),
+            memDiv = $(document.createElement('div')),
+            cpuDiv = $(document.createElement('div')),
             removeTabButton,
-            process;
+            process,
+            name,
+            mem,
+            cpu;
         container = container || $('#lettuceWrap');
         menu.attr('id', 'procMenu');
         menu.css({
@@ -113,6 +119,8 @@ function createProcessMenu(id, processList, container) {
         })
         container.append(menu);
         process = getArrayEltByProp(processList, 'id', id);
+        mem = process.memory;
+        cpu = process.cpu;
         if(process && process.info && process.info.type === 'tab') {
             removeTabButton = $(document.createElement('button'));
             removeTabButton.attr({
@@ -124,7 +132,17 @@ function createProcessMenu(id, processList, container) {
                 closeTab(process.info.tabid)(evt);
             });
             menu.append(removeTabButton);
+            name = process.info.title;
+        } else {
+            name = process.info.type;
         }
+        nameDiv.text(name);
+        memDiv.text(mem);
+        cpuDiv.text(cpu);
+        menu.append(nameDiv);
+        menu.append(memDiv);
+        menu.append(cpuDiv);
+
     }
 }
 
