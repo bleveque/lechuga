@@ -20,7 +20,7 @@ function setupMem() {
     memory = BrowserUtils.getProcesses();
     memories = [];
     //Create SVG element
-    svg = d3.select("#memoryContainer").append("svg")
+    svg = d3.select("#memContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
@@ -67,7 +67,7 @@ function displayMemData(jsonData) {
         return;
     }
 
-    $('#memoryContainer').empty(); // Clear
+    $('#memContainer').empty(); // Clear
     // $('#loading').empty(); // Clear
 
     console.log("mems" + memories)
@@ -137,7 +137,7 @@ function displayMemData(jsonData) {
 
 
     // Define svg canvas
-    svg = d3.select("#memoryContainer").append("svg")
+    svg = d3.select("#memContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")

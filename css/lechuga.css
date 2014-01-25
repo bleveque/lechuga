@@ -3,10 +3,10 @@
 	padding: 0px;
 }
 
-#annulusContainer {
+#cpuContainer {
+	float: left;
 	height: 80%;
 	position: absolute;
-	top: 10%;
 	width: 40%;
 }
 
@@ -16,7 +16,10 @@
 	text-align: center;
 	top: 40%;
 	width: 40%;
+}
 
+.arc path {
+  stroke: #fff;
 }
 
 body {
@@ -40,6 +43,14 @@ body {
 	height: 100%;
 	position: relative;
 	width: 100%;
+}
+
+#loading {
+	clear:both;
+}
+
+#memContainer {
+	float:right;
 }
 
 #procMenu {

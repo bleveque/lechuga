@@ -6,59 +6,80 @@ var width = '300',
     radius = Math.min(width, height) / 2,
     color = d3.scale.category20(),
     cpus,
+    mems,
     arc,
     svg,
     g,
     lastData,
     shouldUpdate = true,
     path,
-    vizPie = d3.layout.pie()
+    vizPieCPU = d3.layout.pie()
+                .sort(null)
+                .value(function(d) { return d; });
+    vizPieMem = d3.layout.pie()
                 .sort(null)
                 .value(function(d) { return d; });
 
 
+/**
+ * Initial setup for d3 elements
+ */
 function setup() {
     var jsonData = BrowserUtils.getProcesses();
     cpus = [];
+    mems = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             cpus.push(jsonData[item].cpu);
+            mems.push(jsonData[item].memory);
         }
     }
-    console.log(cpus);
+    
     //Create SVG element
-    svg = d3.select("#annulusContainer").append("svg")
-        .attr("height", height)
-        .attr("width", width)
+    svgCPU = d3.select("#cpuContainer").append("svg")
+        .attr({
+            height: height,
+            width: width
+        })
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        .attr("class","svgCPU")
 
-    arc = d3.svg.arc()
+    svgMem = d3.select("#memContainer").append("svg")
+        .attr({
+            height: height,
+            width: width
+        })
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+        .attr("class","svgMem")
+
+    
+    arcCPU = d3.svg.arc()
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-    g = svg.selectAll(".arc")
-        .data(vizPie(cpus))
+    arcMem = d3.svg.arc()
+        .innerRadius(radius - 50)
+        .outerRadius(radius);
+
+    gCPU = svgCPU.selectAll(".svgCPU .arc")
+        .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc");
 
-    g.append("text")
-        .style("text-anchor", "middle")
-        .style("font-size","24px")
-        .text("Loading...");
-    
-}
-function updateData(jsonData) {
-    // Build dataset from JSON object
-    jsonData = BrowserUtils.getProcesses();
-    cpus = [];
-    for (item in jsonData) {
-        if(jsonData.hasOwnProperty(item)) {
-            cpus.push(jsonData[item].cpu);
-        }
-    }
+    gMem = svgMem.selectAll(".svgMem .arc")
+        .data(vizPieMem(mems))
+        .enter().append("g")
+        .attr("class", "arc");
 
+    // // Add loading text.
+    // gCPU.append("text")
+    //     .style("text-anchor", "middle")
+    //     .style("font-size","24px")
+    //     .text("Loading...");
 }
+
 /**
  * Creates and returns a handler to close a tab
  * @param id    the tabId
@@ -135,42 +156,66 @@ function createProcessMenu(id, processList, container) {
     }
 }
 
+/**
+ * Update the d3 elements
+ * @param jsonData    an array of processes
+ */
 function displayData(jsonData) {
 
     if(!shouldUpdate) {
         return;
     }
-    $('#annulusContainer').empty(); // Clear
+    $('#cpuContainer').empty(); // Clear
+    $('#memContainer').empty(); // Clear
 
     cpus = [];
+    mems = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             cpus.push(jsonData[item].cpu);
+            mems.push(jsonData[item].memory);
         }
     }
 
-    var total = 0;  //Variable to hold your total
+    var totalCPU = 0; 
+    var totalMem = 0; 
 
     for(var i=0, len=cpus.length; i<len; i++){
-        total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+        totalCPU += cpus[i];  //Iterate over your first array and then grab the second element add the values up
     }
-    if (total === 0) {
+    if (totalCPU === 0) {
+        return;
+    }
+    for(var i=0, len=mems.length; i<len; i++){
+        totalMem += mems[i];  //Iterate over your first array and then grab the second element add the values up
+    }
+    if (totalMem === 0) {
         return;
     }
 
-    $('#annulusContainer').empty(); // Clear
     $('#loading').empty(); // Clear
 
     // For finding maxes
     var dummyCPUS = cpus.slice(0);
-
+    var dummyMems = mems.slice(0);
     maxCPUVals = [];
+    maxMemVals = [];
+
     for(var i=0;i<4;i++) {
-        var maxVal = Math.max.apply(Math, dummyCPUS);
-        maxCPUVals.push(maxVal);
-        var index = dummyCPUS.indexOf(maxVal);
-        if (index > -1) {
-            dummyCPUS.splice(index, 1);
+        var maxCPUVal = Math.max.apply(Math, dummyCPUS);
+        maxCPUVals.push(maxCPUVal);
+
+        var maxMemVal = Math.max.apply(Math, dummyMems);
+        maxMemVals.push(maxMemVal);
+
+        var indexCPU = dummyCPUS.indexOf(maxCPUVal);
+        var indexMem = dummyMems.indexOf(maxMemVal);
+
+        if (indexCPU > -1) {
+            dummyCPUS.splice(indexCPU, 1);
+        }
+        if (indexMem > -1) {
+            dummyMems.splice(indexMem, 1);
         }
     }
 
@@ -224,56 +269,102 @@ function displayData(jsonData) {
     }
 
     // Define svg canvas
-    svg = d3.select("#annulusContainer").append("svg")
+    svgCPU = d3.select("#cpuContainer").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
+    // Define svg canvas
+    svgMem = d3.select("#memContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
 
-    arc = d3.svg.arc()
+
+    arcCPU = d3.svg.arc()
+        .innerRadius(radius - 50)
+        .outerRadius(radius);
+
+    arcMem = d3.svg.arc()
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
 
-    path = svg.datum(cpus).selectAll("path")
-                          .data(vizPie)
+    pathCPU = svgCPU.datum(cpus).selectAll(".svgCPU path")
+                          .data(vizPieCPU)
+                          .attr("d", arc)
+
+    pathMem = svgMem.datum(mems).selectAll(".svgMem path")
+                          .data(vizPieMem)
                           .attr("d", arc)
 
     // Defines arcs
-    g = svg.selectAll(".arc")
-        .data(vizPie(cpus))
+    gCPU = svgCPU.selectAll(".svgCPU .arc")
+        .data(vizPieCPU(cpus))
+        .enter().append("g")
+        .attr("class", "arc")
+        .style("stroke-width", 3);
+
+    gMem = svgMem.selectAll(".svgMem .arc")
+        .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc")
         .style("stroke-width", 3);
 
     // Draws and colors
-    g.append("path")
-      .attr("d", arc)
+    gCPU.append("path")
+      .attr("d", arcCPU)
       .style("fill", function(d, i) { return color(i); });
 
-    svg.selectAll('path').each(function(d, i) {
+    // Draws and colors
+    gMem.append("path")
+      .attr("d", arcMem)
+      .style("fill", function(d, i) { return color(i); });
+
+    svgCPU.selectAll('.svgCPU path').each(function(d, i) {
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
 
-    g.append("text")
-      .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+    svgMem.selectAll('.svgMem path').each(function(d, i) {
+        $(this).attr('id', jsonData[i].id)
+        $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    });
+
+    gCPU.append("text")
+      .attr("transform", function(d) { return "translate(" + arcCPU.centroid(d) + ")"; })
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
       .style("font-size","8px")
       .data(names)
       .text(function(d, i) {return d; });
 
-    g.append("text")
+    gMem.append("text")
+      .attr("transform", function(d) { return "translate(" + arcMem.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .style("font-size","8px")
+      .data(names)
+      .text(function(d, i) {return d; });
+
+    gCPU.append("text")
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("CPU Usage");
 
+    gMem.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Memory Usage");
+
    }
 
-return {displayData: displayData,
-        setup:  setup,
-        updateData: updateData}
+return {
+    displayData: displayData,
+    setup:  setup
+};
 
 })();
