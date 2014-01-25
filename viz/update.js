@@ -17,14 +17,20 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = []
-
+    cpus = BrowserUtils.getProcesses();
+    cpus = [];
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
+    var line = d3.append("line")
+                 .attr("x1", 5)
+                 .attr("y1", 5)
+                 .attr("x2", 55)
+                 .attr("y2", 55);
 
     arc = d3.svg.arc()
         .innerRadius(radius - 50)
@@ -35,14 +41,25 @@ function setup() {
         .enter().append("g")
         .attr("class", "arc");
 
-    g.append("path").attr("d", arc);
-
-    // lastData = cpus;
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Loading...");
 
 }
+function updateData(jsonData) {
+    // Build dataset from JSON object
+    jsonData = BrowserUtils.getProcesses();
+    cpus = [];
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
+    }
+    console.log("cpus!!!!!!!!" + cpus)
 
+}
 function displayData(jsonData) {
-    $('#annulusContainer').empty(); // Clear
 
     // svg = d3.select("#annulusContainer").append("svg")
     //     .attr("width", width)
@@ -60,51 +77,93 @@ function displayData(jsonData) {
     //     .attr("class", "arc");
 
     // g.append("path").attr("d", arc);
-
-    // Build dataset from JSON object
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             cpus.push(jsonData[item].cpu);
         }
     }
+
+    var total = 0;  //Variable to hold your total
+
+    for(var i=0, len=cpus.length; i<len; i++){
+        total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+    }
+    if (total == 0) {
+        return;
+    }
+
+    $('#annulusContainer').empty(); // Clear
+    $('#loading').empty(); // Clear
+
+
+    console.log("cpus" + cpus)
+
+
+    // For finding maxes
+    var dummyCPUS = cpus.slice(0);
+
+    maxCPUVals = [];
+    for(var i=0;i<4;i++) {
+        var maxVal = Math.max.apply(Math, dummyCPUS);
+        maxCPUVals.push(maxVal);
+        var index = dummyCPUS.indexOf(maxVal);
+        if (index > -1) {
+            dummyCPUS.splice(index, 1);
+        }
+    }
+
     // lastData = cpus;
 
     names = []
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if (jsonData[item].info.type == "tab") {
+            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+                // Not one of the bigger processes, so set its title to a blank string
+                console.log("one: " + jsonData[item].cpu);
+                names.push("");
+            }
+            else{
+                // one of max vals, get real name
+                if (jsonData[item].info.type == "tab") {
 
-                if (jsonData[item].info.title.length >= 10) {
-                    var url = jsonData[item].info.url
-                    // console.log(url)
-                    title = url.match(/\.{1}\w+\.{1}/g)
+                    if (jsonData[item].info.title.length >= 10) {
+                        var url = jsonData[item].info.url
+                        title = url.match(/[^w]\w+\.{1}/g)
 
-                    // console.log("title: " + title)
+                        if (title == null) {
+                            names.push(jsonData[item].info.title.slice(1,10))
+                        }
+                        else {
+                            var matchNum = 0;
+                            if (title[matchNum].match(/www/g)) {
+                                matchNum += 1
+                            }
+                            if (title[matchNum][0].match(/\w/g)){
+                                // first char is alpha, so slice from there
+                                finalTitle = title[matchNum].slice(0,-1);
+                                names.push(finalTitle);
+                            }
+                            else {
+                                finalTitle = title[matchNum].slice(1,-1);
+                                names.push(finalTitle);
+                            }
 
-                    if (title == null) {
-                        names.push(jsonData[item].info.title.slice(1,10))
+                        }
+
                     }
                     else {
-
-                        finalTitle = title[0].slice(1,-2);
-                        // console.log(finalTitle);
-                        names.push(finalTitle);
+                        names.push(jsonData[item].info.title);
                     }
-
                 }
                 else {
-                    names.push(jsonData[item].info.title);
+                    names.push(jsonData[item].info.type);
                 }
-            }
-            else {
-                names.push(jsonData[item].info.type);
             }
         }
     }
 
-    console.log()
 
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")
@@ -127,7 +186,8 @@ function displayData(jsonData) {
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
-        .attr("class", "arc");
+        .attr("class", "arc")
+        .style("stroke-width", 3);
 
     // Draws and colors
     g.append("path")
@@ -140,11 +200,17 @@ function displayData(jsonData) {
       .style("text-anchor", "middle")
       .style("font-size","8px")
       .data(names)
-      .text(function(d) { return d; });
+      .text(function(d, i) {return d; });
+
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("CPU Usage");
 
    }
 
 return {displayData: displayData,
-        setup:  setup}
+        setup:  setup,
+        updateData: updateData}
 
 })();
