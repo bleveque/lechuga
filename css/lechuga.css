@@ -7,11 +7,11 @@ body {
 	border-radius: 5px;
 	height: 400px;
 	position: relative;
-	width: 600px;
+	width: 800px;
 }
 
 #lettuceWrap {
-	background: #ff0000;
+	background: #eeeeee;
 	height: 100%;
 	position: relative;
 	width: 100%;
