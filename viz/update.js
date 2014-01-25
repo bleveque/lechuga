@@ -239,6 +239,7 @@ function displayData(jsonData) {
     }
 
     $('#loading').empty(); // Clear
+    $('#filters').css('display','block');
 
     namesCPU = []
     namesMem = []
