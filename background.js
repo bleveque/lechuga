@@ -161,6 +161,7 @@ var BrowserUtils = (function() {
                 proc.info.tabid = tabid;
                 someTabIds.push(tabid);
 
+                
                 chrome.tabs.get(tabid,
                     function(tab) {
                         proc.info.title = tab.title;
