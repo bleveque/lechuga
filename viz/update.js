@@ -26,12 +26,6 @@ function setup() {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
-    var line = d3.append("line")
-                 .attr("x1", 5)
-                 .attr("y1", 5)
-                 .attr("x2", 55)
-                 .attr("y2", 55);
-
     arc = d3.svg.arc()
         .innerRadius(radius - 50)
         .outerRadius(radius);
