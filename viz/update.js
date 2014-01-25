@@ -314,16 +314,16 @@ function displayData(jsonData) {
         .outerRadius(radius);
 
 
-    pathCPU = svgCPU.datum(cpus).selectAll(".svgCPU path")
+    path = svgCPU.datum(cpus).selectAll(".svgCPU path")
                           .data(vizPieCPU)
                           .attr("d", arc)
 
-    pathMem = svgMem.datum(mems).selectAll(".svgMem path")
-                          .data(vizPieMem)
-                          .attr("d", arc)
+    // pathMem = svgMem.datum(mems).selectAll(".svgMem path")
+    //                       .data(vizPieMem)
+    //                       .attr("d", arc)
 
     // Defines arcs
-    gCPU = svgCPU.selectAll(".svgCPU .arc")
+    g = svgCPU.selectAll(".svgCPU .arc")
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc")
