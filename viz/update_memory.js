@@ -34,11 +34,6 @@ function setupMem() {
         .data(vizPie(memories))
         .enter().append("g")
         .attr("class", "arc");
-
-    g.append("text")
-        .style("text-anchor", "middle")
-        .style("font-size","24px")
-        .text("Loading...");
     
 }
 function updateMemData(jsonData) {
@@ -66,6 +61,7 @@ function displayMemData(jsonData) {
         total += memories[i];  //Iterate over your first array and then grab the second element add the values up
     }
     if (total == 0) {
+        console.log("DEATH");
         return;
     }
 
