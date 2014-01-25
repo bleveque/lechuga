@@ -1,24 +1,33 @@
 var BrowserUtils = (function() {
 	var historyLength = 10,
 		procs = [], // last updated process list
-		procHistory = {}, // history of historyLength previous process lists
+		procHistory = [], // history of historyLength previous process lists
 		networkStats = {},
 		cpuStats = {},
 		memoryStats = {},
         callbacks = [],
+        testFlag = true;
         someTabIds = [];
 
 	/**
 	 * Pushes a new element to an array of max length maxLength
 	 * If maxLength would be exceeded, removes the first element before pushing
 	 */
-	function lettucePush(array, newElt, maxLength) {
-		maxLength = maxLength || 10;
+	// function lettucePush(array, newElt, maxLength) {
+	// 	maxLength = maxLength || 10;
+	// 	if(array.length >= maxLength) {
+	// 		array.splice(0, array.length - maxLength + 1);
+	// 	}
+	// 	array.push(newElt);
+	// }
+
+    function lettucePush(array, newElt, maxLength) {
+        maxLength = maxLength || 10;
         // console.log("ARRAY:", array)
         var n = (array[0] && array[0].length) || 0;
-		if(array.length >= maxLength) {
-			array.splice(0, n - maxLength + 1);
-		}
+        if(array.length >= maxLength) {
+            array.splice(0, n - maxLength + 1);
+        }
 
         for (var i=0; i < newElt.length; i++) {
             var proc = newElt[i];
@@ -27,11 +36,10 @@ var BrowserUtils = (function() {
                 array[procName] = [];
                 for(var j=0; j<=n; j++) array[procName][j] = 0;
             }
-            // console.log("ARRAY:", procName, array[]);
             array[procName].push(proc.cpu)
         }
-		// array.push(newElt);
-	}
+        // array.push(newElt);
+    }
 
 
 	/**
@@ -124,7 +132,11 @@ var BrowserUtils = (function() {
                 // convert(procHistory, "cpu");
                 // formatProcHistory(procHistory);
                 sendProcData(procs);
-    			// update1.displayData(procHistory);
+                if (testFlag) {
+                    // testFlag = false;
+                    console.log("TESTING", testFlag)
+                    update1.displayData(procHistory);
+                }
             });
 
 		});
@@ -137,6 +149,7 @@ var BrowserUtils = (function() {
                 id: process.id,
                 network: process.network,
                 cpu: process.cpu,
+                memory: process.privateMemory,
                 info: {}
             };
 
