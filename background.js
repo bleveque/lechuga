@@ -129,8 +129,12 @@ var BrowserUtils = (function() {
 			}
 
             get_proc_info(processesArray, function() {
-			lettucePush(procHistory, procs, historyLength);
-            sendProcData(procs);
+    			lettucePush(procHistory, procs, historyLength);
+                if (testFlag) {
+                    testFlag = false;
+                    update.setup(procs);
+                }
+                sendProcData(procs);
 
             });
 
@@ -156,7 +160,7 @@ var BrowserUtils = (function() {
                 proc.info.tabid = tabid;
                 someTabIds.push(tabid);
 
-                
+
                 chrome.tabs.get(tabid,
                     function(tab) {
                         proc.info.title = tab.title;

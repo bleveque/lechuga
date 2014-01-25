@@ -7,7 +7,7 @@ var Popup = (function() {
 		console.log(chrome.processes);
         BrowserUtils.registerCallback(update.displayData);
 		// BrowserUtils.setUpListeners();
-		update.setup();
+		// update.setup();
 		// updateMem.setupMem();
 	}
 })();
