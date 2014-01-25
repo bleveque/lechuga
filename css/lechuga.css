@@ -5,9 +5,10 @@
 
 #cpuContainer {
 	float: left;
-	height: 80%;
 	position: absolute;
-	width: 40%;
+	margin: 2%;
+	width: 300px;
+	height: 300px;
 }
 
 #annulusTitle {
@@ -31,6 +32,19 @@ body {
 }
 
 #content {
+	background: #f7fff9; /* Old browsers */
+	background: -moz-linear-gradient(top,  #f7fff9 1%, #ffffff 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,#f7fff9), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #f7fff9 1%,#ffffff 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #f7fff9 1%,#ffffff 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #f7fff9 1%,#ffffff 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #f7fff9 1%,#ffffff 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7fff9', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+	border-top:2px solid #7ca570;
+	border-right:2px solid #7ca570;
+	border-left:2px solid #7ca570;
+	border-top-left-radius:2em;
+	border-top-right-radius:2em;
 	height: 330px;
 	left: 2%;
 	position: absolute;
@@ -39,6 +53,7 @@ body {
 }
 
 #filters {
+	margin-left: 75%;
 	position: absolute;
 	top: -50px;
 }
@@ -56,6 +71,7 @@ body {
 
 #memContainer {
 	float:right;
+	margin: 2%;
 }
 
 #procMenu {
@@ -66,11 +82,16 @@ body {
 	width: 200px;
 }
 
+#filterSelect {
+	background-color: #f7fff9;
+}
+
 #title {
 	font-size: 40px;
 	height: 50px;
 	position: absolute;
 	text-align: center;
+	text-shadow: 2px 2px #7ca570;
 	top: 5px;
 	width: 100%;
 }
