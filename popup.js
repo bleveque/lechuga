@@ -2,7 +2,10 @@ var Popup = (function() {
 
 	window.onload = load;
 
-	var procs = [];
+	var historyLength = 10;
+
+	var procs = [],
+		procHistory = [];
 
 	var networkStats = {},
 		cpuStats = {},
@@ -14,12 +17,32 @@ var Popup = (function() {
 		setUpListeners();
 	}
 
+	function lettucePush(array, newElt, maxLength) {
+		maxLength = maxLength || 10;
+		if(array.length >= maxLength) {
+			array.splice(0, array.length - maxLength + 1);
+		}
+		array.push(newElt);
+	}
+
 	function get_proc_info(process) {
 		return {};
 	}
 
+	/**
+	 * Returns array of pre-processed processes
+	 * Each process object has properties for id, network, cpu, and info
+	 */
 	function getProcesses() {
 		return procs;
+	}
+
+	/**
+	 * Returns array of arrays of pre-processed processes at recent times
+	 * The max length of this array is governed by historyLength above
+	 */
+	function getProcessHistory() {
+		return procHistory;
 	}
 
 	/**
@@ -49,7 +72,6 @@ var Popup = (function() {
 		return extractInfoArray(processes, 'cpu');
 	}
 
-
 	/**
 	 * Set up chrome.processes listeners
 	 */
@@ -66,14 +88,9 @@ var Popup = (function() {
 					});
 				}
 			}
+			lettucePush(procHistory, procs, historyLength);
 			console.log(processes);
 			console.log(getNetworkInfo(procs));
-
-
-
-
-
-
 
 			var i, id, text, processDiv;
 			for(id in processes) {
