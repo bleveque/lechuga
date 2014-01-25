@@ -83,7 +83,7 @@ var Popup = (function() {
 			}
 
 			lettucePush(procHistory, procs, historyLength);
-			
+
 			console.log(processes);
 			console.log(procs);
 
@@ -147,9 +147,6 @@ var Popup = (function() {
             proc.info.name = process["type"];
             callback && callback(proc);
         }
-        // if (process.tabs.length > 0) {
-        //     console.log("TYPE:", process.type, "TABS:", process.tabs);
-        // }
 
     }
 
