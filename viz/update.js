@@ -30,13 +30,13 @@ g.append("text")
 function displayData(data) {
   var data = data.slice();
   console.log(data);
-  //d3.select("#lettuceWrap #procName").text("CPU: " + data[0].info.name);
-    pie.data()
-    pie.value(function(d) { 
-        d = data;
-        return data.cpu; }); // change the value function
-    path = path.data(pie); // compute the new angles
-    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+  d3.select("#lettuceWrap #procName").text("CPU: " + data[0].info.name);
+    // pie.data()
+    // pie.value(function(d) { 
+    //     d = data;
+    //     return data.cpu; }); // change the value function
+    // path = path.data(pie); // compute the new angles
+    // path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
     
     // g.append("text")
     //   .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
