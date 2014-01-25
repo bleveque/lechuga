@@ -27,7 +27,8 @@ var svgCPU,
     gCPU,
     pathCPU,
     pathMem,
-    gMem;
+    gMem,
+    label_group;
 
 
 /**
@@ -84,7 +85,7 @@ function setup(jsonData) {
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
-                
+
     pathMem = svgMem.selectAll("path")
                 .data(vizPieMem(mems))
                 .enter()
@@ -114,6 +115,8 @@ function setup(jsonData) {
         .enter().append("path")
         .attr("class", "arc");
 
+    label_group = d3.select("#cpuContainer svg").append("g")
+                    .attr("transform", "translate(" + (width/2) + "," + (height/2) + ")");
 
 
     // // Add loading text.
@@ -300,7 +303,7 @@ function determineNames(jsonData) {
     var namesCPU = [];
     var namesMem = [];
 
-    var titleThreshold = .07;
+    var titleThreshold = 0;
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
@@ -399,8 +402,8 @@ function displayData(jsonData) {
     // $('#memContainer').empty(); // Clear
 
     var nameLists = determineNames(jsonData);
-    var nameCPU = nameLists[0];
-    var nameMem = nameLists[1];
+    var namesCPU = nameLists[0];
+    var namesMem = nameLists[1];
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
@@ -408,7 +411,50 @@ function displayData(jsonData) {
     pathMem.data(vizPieMem(mems));
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
 
+    textLabels = label_group.selectAll("text")
+                    .data(vizPieCPU(cpus))
+                    .attr("dy", function(d){
+                      if ((d.startAngle+d.endAngle)/2 > Math.PI/2 && (d.startAngle+d.endAngle)/2 < Math.PI*1.5 ) {
+                        return 17;
+                      } else {
+                        return 5;
+                      }
+                    })
+                    .attr("text-anchor", function(d){
+                      if ((d.startAngle+d.endAngle)/2 < Math.PI ) {
+                        return "beginning";
+                      } else {
+                        return "end";
+                      }})
+                    .text(function(d,i) { return namesCPU[i]; });
+    textOffset = 14;
+    textLabels.enter().append("text")
+        .attr("transform", function(d) {
+          return "translate(" + Math.cos(((d.startAngle+d.endAngle - Math.PI)/2)) * (radius+textOffset) + "," + Math.sin((d.startAngle+d.endAngle - Math.PI)/2) * (radius+textOffset) + ")";
+        })
+        .attr("dy", function(d){
+          if ((d.startAngle+d.endAngle)/2 > Math.PI/2 && (d.startAngle+d.endAngle)/2 < Math.PI*1.5 ) {
+            return 17;
+          } else {
+            return 5;
+          }
+        })
+        .attr("text-anchor", function(d){
+          if ((d.startAngle+d.endAngle)/2 < Math.PI ) {
+            return "beginning";
+          } else {
+            return "end";
+          }
+        })
+        .text(function(d,i){
+          return namesCPU[i];
+        });
 
+    // textLabels.transition()
+    //     .duration(1000)
+    //     .attrTween("transform", arcCPUTween);
+
+    // textLabels.exit().remove();
 
     // Define svg canvas
     // svgCPU = d3.select("#cpuContainer").append("svg")
