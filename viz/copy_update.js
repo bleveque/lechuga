@@ -15,7 +15,7 @@ var width = '300',
     path,
     vizPieCPU = d3.layout.pie()
                 .sort(null)
-                .value(function(d) { return d; }),
+                .value(function(d) { return d; });
     vizPieMem = d3.layout.pie()
                 .sort(null)
                 .value(function(d) { return d; });
@@ -55,10 +55,7 @@ function setup(jsonData) {
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-    console.log("svgMem:", svgMem);
-    console.log("svgCPU:", svgCPU);
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
 
     arcCPU = d3.svg.arc()
@@ -69,15 +66,14 @@ function setup(jsonData) {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-
-    pathCPU = svgCPU.selectAll("path")
-                .data(vizPieCPU(cpus))
+    pathMem = svgMem.selectAll("path")
+                .data(vizPieMem(mems))
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
 
-    pathMem = svgMem.selectAll("path")
-                .data(vizPieMem(mems))
+    pathCPU = svgCPU.selectAll("path")
+                .data(vizPieCPU(cpus))
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
@@ -232,7 +228,7 @@ function displayData(jsonData) {
         return;
     }
     // $('#cpuContainer').empty(); // Clear
-    // $('#memContainer').empty(); // Clear
+    $('#memContainer').empty(); // Clear
 
     jsonData = filterProcesses(jsonData);
     cpus = [];
