@@ -146,11 +146,23 @@ function createProcessMenu(id, processList, container) {
         menu.attr('id', 'procMenu');
         menu.css({
             position: 'absolute',
-            left: left,
-            top: top,
+            left: left + 'px',
+            top: top + 'px',
             background: 'rgba(255,100,0,0.5)'
-        })
+        });
         container.append(menu);
+
+        if(menu.offset().left + menu.width() > container.width()) {
+            menu.css({
+                left: left - menu.width() - 10 + 'px'
+            });
+        }
+        if (menu.offset().top + menu.height() > container.height()) {
+            menu.css({
+                top: top - menu.height() - 10 + 'px'
+            })
+        }
+
         process = getArrayEltByProp(processList, 'id', id);
         mem = convertMetric(process.memory);
         cpu = process.cpu;
