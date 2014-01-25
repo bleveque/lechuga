@@ -53,8 +53,13 @@ body {
 }
 
 #cpuContainer>svg{
-    -webkit-filter: drop-shadow( 0px 5px 5px #7EBA8C );
-            filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
+    -webkit-filter: drop-shadow( 0px 3px 3px #7EBA8C );
+            filter: drop-shadow( 0px 3px 3px #7EBA8C ); /* Same syntax as box-shadow */
+}
+
+#cpuContainer>text {
+	-webkit-filter: none;
+	filter: none;
 }
 
 #filters {

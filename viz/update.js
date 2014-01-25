@@ -56,6 +56,16 @@ function setup(jsonData) {
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+    svgCPU.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("CPU Usage");
+
+    svgMem.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Mem Usage");
+
     console.log("svgMem:", svgMem);
     console.log("svgCPU:", svgCPU);
 
@@ -390,15 +400,7 @@ function displayData(jsonData) {
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
 
    
-    svgCPU.append("text")
-        .style("text-anchor", "middle")
-        .style("font-size","24px")
-        .text("CPU Usage");
-
-    svgMem.append("text")
-        .style("text-anchor", "middle")
-        .style("font-size","24px")
-        .text("Mem Usage");
+    
 
     // Define svg canvas
     // svgCPU = d3.select("#cpuContainer").append("svg")
