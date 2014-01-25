@@ -28,20 +28,30 @@ var BrowserUtils = (function() {
             name,
             k,
             longestArrayLength = 0;
+
+
         for(i=0;i<bigArray.length;i++) {
             snapshot = bigArray[i];
             for(j=0;j<snapshot.length;j++) {
                 proc = snapshot[j];
-                name = proc.info.type === 'tab' ? proc.info.name : proc.info.type;
+                name = proc.info.type === 'tab' ? proc.info.title : proc.info.type;
+
+                // if (name.indexOf("NFL") != -1) {
+                //     console.log(proc[prop], i, snapshot[3])
+                // }
+
                 if(!ret[name]) {
                     ret[name] = [];
                     for(k=0;k<i-1;k++) {
                         ret[name].push(0);
                     }
                 }
+
                 ret[name].push(proc[prop]);
             }
         }
+        // console.log(ret);
+        return ret;
     }
 
     function formatProcHistory(procHistory) {
@@ -63,7 +73,7 @@ var BrowserUtils = (function() {
                     console.log(col, row);
                     newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
                 }
-                newProcHistory[procName] += proc.cpu);
+                newProcHistory[procName] += proc.cpu;
                 if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
                     console.log(procName, row)
                 }
@@ -182,7 +192,8 @@ var BrowserUtils = (function() {
 
             get_proc_info(processesArray, function() {
     			lettucePush(procHistory, procs, historyLength);
-                formatProcHistory(procHistory);
+                convert(procHistory, "cpu");
+                // formatProcHistory(procHistory);
                 sendProcData(procs);
     			// update.displayData(procs);
             });
