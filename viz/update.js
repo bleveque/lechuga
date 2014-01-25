@@ -233,7 +233,7 @@ function displayData(jsonData) {
 
     $('#loading').empty(); // Clear
 
-    // For finding maxes
+    // For the most relevant names to display on the chart
     var dummyCPUS = cpus.slice(0);
     var dummyMems = mems.slice(0);
     maxCPUVals = [];
@@ -257,15 +257,15 @@ function displayData(jsonData) {
         }
     }
 
-    names = []
+    namesCPU = []
+    namesMem = []
+
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-
-            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
-                // Not one of the bigger processes, so set its title to a blank string
-                // console.log("one: " + jsonData[item].cpu);
-                names.push("");
+            if (maxMemVals.indexOf(jsonData[item].memory) === -1) {
+                // Not one of the bigger processes w.r.t memory, so set its title to a blank string
+                namesMem.push("");
             } else {
                 // one of max vals, get real name
                 if (jsonData[item].info.type == "tab") {
@@ -275,7 +275,7 @@ function displayData(jsonData) {
                         title = url.match(/[^w]\w+\.{1}/g)
 
                         if (title == null) {
-                            names.push(jsonData[item].info.title.slice(1,10))
+                            namesMem.push(jsonData[item].info.title.slice(1,10))
                         }
                         else {
                             var matchNum = 0;
@@ -285,22 +285,60 @@ function displayData(jsonData) {
                             if (title[matchNum][0].match(/\w/g)){
                                 // first char is alpha, so slice from there
                                 finalTitle = title[matchNum].slice(0,-1);
-                                names.push(finalTitle);
+                                namesMem.push(finalTitle);
                             }
                             else {
                                 finalTitle = title[matchNum].slice(1,-1);
-                                names.push(finalTitle);
+                                namesMem.push(finalTitle);
                             }
 
                         }
-
                     }
                     else {
-                        names.push(jsonData[item].info.title);
+                        namesMem.push(jsonData[item].info.title);
                     }
                 }
                 else {
-                    names.push(jsonData[item].info.type);
+                    namesMem.push(jsonData[item].info.type);
+                }
+            }
+            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+                // Not one of the bigger processes w.r.t. cpu, so set its title to a blank string
+                namesCPU.push("");
+                continue;
+            } else {
+                // one of max vals, get real name
+                if (jsonData[item].info.type == "tab") {
+
+                    if (jsonData[item].info.title.length >= 10) {
+                        var url = jsonData[item].info.url
+                        title = url.match(/[^w]\w+\.{1}/g)
+
+                        if (title == null) {
+                            namesCPU.push(jsonData[item].info.title.slice(1,10))
+                        }
+                        else {
+                            var matchNum = 0;
+                            if (title[matchNum].match(/www/g)) {
+                                matchNum += 1
+                            }
+                            if (title[matchNum][0].match(/\w/g)){
+                                // first char is alpha, so slice from there
+                                finalTitle = title[matchNum].slice(0,-1);
+                                namesCPU.push(finalTitle);
+                            }
+                            else {
+                                finalTitle = title[matchNum].slice(1,-1);
+                                namesCPU.push(finalTitle);
+                            }
+                        }
+                    }
+                    else {
+                        namesCPU.push(jsonData[item].info.title);
+                    }
+                }
+                else {
+                    namesCPU.push(jsonData[item].info.type);
                 }
             }
         }
@@ -319,8 +357,6 @@ function displayData(jsonData) {
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
-
 
     arcCPU = d3.svg.arc()
         .innerRadius(radius - 50)
@@ -343,14 +379,15 @@ function displayData(jsonData) {
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc")
-        .style("stroke-width", 3);
+        .style("stroke-width", 4);
 
     gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc")
-        .style("stroke-width", 3);
+        .style("stroke-width", 4);
 
+    console.log(arcCPU);
     // Draws and colors
     gCPU.append("path")
       .attr("d", arcCPU)
@@ -377,7 +414,7 @@ function displayData(jsonData) {
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
       .style("font-size","8px")
-      .data(names)
+      .data(namesCPU)
       .text(function(d, i) {return d; });
 
     gMem.append("text")
@@ -385,7 +422,7 @@ function displayData(jsonData) {
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
       .style("font-size","8px")
-      .data(names)
+      .data(namesMem)
       .text(function(d, i) {return d; });
 
     gCPU.append("text")
