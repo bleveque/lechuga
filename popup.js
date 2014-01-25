@@ -8,7 +8,6 @@ var Popup = (function() {
         BrowserUtils.registerCallback(update.displayData);
 		// BrowserUtils.setUpListeners();
 		update.setup();
-		$('#tabButton').on('click', BrowserUtils.closeTab());
 	}
 })();
 

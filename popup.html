@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link href='http://fonts.googleapis.com/css?family=Duru+Sans' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/lechuga.css" />
 
 	<script src='js/jquery-1.11.0.js'></script>
@@ -10,23 +11,23 @@
     <script src='viz/update.js'></script>
 
     <style type="text/css">
-        
-            p.bar {
-                display: inline-block;
-                width: 20px;
-                height: 75px;
-                background-color: teal;
-                margin-right: 2px;    
-            }
+
+            .arc path {
+			  stroke: #fff;
+			}
         
     </style>
 
 </head>
 <body>
-
 	<div id='lettuceWrap'>
-		<button type="button" id="tabButton">close a tab!</button>
- 		<div id='procName'>[insert stuff] </div>
+		<div id='title'>
+			Lechuga
+		</div>
+		<div id='content'>
+	 		<div id='annulusContainer'></div>
+	 		<div id='procName'></div>
+	 	</div>
 	</div>
 </body>
 </html>
