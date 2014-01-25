@@ -224,8 +224,8 @@ function createProcessMenu(id, processList, container) {
             removeTabButton.text('Close Tab');
             removeTabButton.on('click', function(evt) {
                 shouldUpdate = true;
-                arrInd = getArrayIndexByProp(processList, 'id', id);
-                (arrInd >= 0) && processList.splice(arrInd, 1);
+                // arrInd = getArrayIndexByProp(processList, 'id', id);
+                // (arrInd >= 0) && processList.splice(arrInd, 1);
                 closeTab(process.info.tabid)(evt);
             });
             removeTabButtonContainer.append(removeTabButton);
@@ -272,13 +272,19 @@ function filterProcesses(jsonData) {
         type,
         i;
     for(i=0;i<jsonData.length;i++) {
-        // debugger;
         type = jsonData[i].info.type;
-        if(filter === 'all' || (type === 'tab' &&  filter==='tabsonly') || (type !== 'tab' && filter==='notabs')){
-            ret.push(jsonData[i]);
+        if(!jsonData[i].memory) {
+            debugger;
         }
+        if(filter === 'all' || (type === 'tab' &&  filter==='tabsonly') || (type !== 'tab' && filter==='notabs')){
+
+        } else {
+            jsonData[i].cpu = 0;
+            jsonData[i].memory =0;
+        }
+
     }
-    return ret;
+    return jsonData;
 }
 
 /**
@@ -298,15 +304,7 @@ function convertMetric(input) {
 
 function determineNames(jsonData) {
 
-    jsonData = filterProcesses(jsonData);
-    cpus = [];
-    mems = [];
-    for (item in jsonData) {
-        if(jsonData.hasOwnProperty(item)) {
-            cpus.push(jsonData[item].cpu);
-            mems.push(jsonData[item].memory);
-        }
-    }
+    
 
     var totalCPU = 0;
     var totalMem = 0;
@@ -430,12 +428,23 @@ function displayData(jsonData) {
     // $('#cpuContainer').empty(); // Clear
     // $('#memContainer').empty(); // Clear
 
+    jsonData = filterProcesses(jsonData);
+    cpus.length = 0;
+    mems.length = 0;
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+            mems.push(jsonData[item].memory);
+        }
+    }
+
     var nameLists = determineNames(jsonData);
     var nameCPU = nameLists[0];
     var nameMem = nameLists[1];
 
     pathCPU.data(vizPieCPU(cpus));
     pathCPU.transition().duration(1000).attrTween("d", arcCPUTween);
+
 
     pathMem.data(vizPieMem(mems));
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
@@ -447,7 +456,6 @@ function displayData(jsonData) {
     });
 
     svgMem.selectAll('path').each(function(d, i) {
-        // debugger;
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
