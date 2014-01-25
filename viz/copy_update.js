@@ -15,7 +15,7 @@ var width = '300',
     path,
     vizPieCPU = d3.layout.pie()
                 .sort(null)
-                .value(function(d) { return d; }),
+                .value(function(d) { return d; });
     vizPieMem = d3.layout.pie()
                 .sort(null)
                 .value(function(d) { return d; });
@@ -43,6 +43,7 @@ function setup(jsonData) {
             mems.push(jsonData[item].memory);
         }
     }
+
     //Create SVG element
     svgCPU = d3.select("#cpuContainer").append("svg")
         .attr("width", width)
@@ -54,10 +55,7 @@ function setup(jsonData) {
         .attr("width", width)
         .attr("height", height)
         .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-    console.log("svgMem:", svgMem);
-    console.log("svgCPU:", svgCPU);
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
 
     arcCPU = d3.svg.arc()
@@ -68,15 +66,14 @@ function setup(jsonData) {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-
-    pathCPU = svgCPU.selectAll("path")
-                .data(vizPieCPU(cpus))
+    pathMem = svgMem.selectAll("path")
+                .data(vizPieMem(mems))
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
 
-    pathMem = svgMem.selectAll("path")
-                .data(vizPieMem(mems))
+    pathCPU = svgCPU.selectAll("path")
+                .data(vizPieCPU(cpus))
                 .enter()
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
@@ -167,25 +164,13 @@ function createProcessMenu(id, processList, container) {
         menu.attr('id', 'procMenu');
         menu.css({
             position: 'absolute',
-            left: left + 'px',
-            top: top + 'px',
-            background: 'rgba(255,100,0,0.85)'
-        });
+            left: left,
+            top: top,
+            background: 'rgba(255,100,0,0.5)'
+        })
         container.append(menu);
-
-        if(menu.offset().left + menu.width() > container.width()) {
-            menu.css({
-                left: left - menu.width() - 10 + 'px'
-            });
-        }
-        if (menu.offset().top + menu.height() > container.height()) {
-            menu.css({
-                top: top - menu.height() - 10 + 'px'
-            })
-        }
-
         process = getArrayEltByProp(processList, 'id', id);
-        mem = convertMetric(process.memory);
+        mem = process.memory;
         cpu = process.cpu;
         if(process && process.info && process.info.type === 'tab') {
             removeTabButton = $(document.createElement('button'));
@@ -234,21 +219,6 @@ function filterProcesses(jsonData) {
 }
 
 /**
- * Convert to appropriate metric system unit
- * @param input      number to convert
- * @return           formatted string
- */
-function convertMetric(input) {
-    var units = ['B', 'KB', 'MB', 'GB'],
-        reductions = 0;
-    while(input > 1024 && reductions < 3) {
-        input /= 1024;
-        reductions++;
-    }
-    return input.toFixed(2) + units[reductions];
-}
-
-/**
  * Update the d3 elements
  * @param jsonData    an array of processes
  */
@@ -258,7 +228,7 @@ function displayData(jsonData) {
         return;
     }
     // $('#cpuContainer').empty(); // Clear
-    // $('#memContainer').empty(); // Clear
+    $('#memContainer').empty(); // Clear
 
     jsonData = filterProcesses(jsonData);
     cpus = [];
@@ -287,19 +257,40 @@ function displayData(jsonData) {
     }
 
     $('#loading').empty(); // Clear
-    $('#filters').css('display','block');
 
-    namesCPU = []
-    namesMem = []
+    // For finding maxes
+    var dummyCPUS = cpus.slice(0);
+    var dummyMems = mems.slice(0);
+    maxCPUVals = [];
+    maxMemVals = [];
 
-    var titleThreshold = .07;
+    for(var i=0;i<4;i++) {
+        var maxCPUVal = Math.max.apply(Math, dummyCPUS);
+        maxCPUVals.push(maxCPUVal);
 
+        var maxMemVal = Math.max.apply(Math, dummyMems);
+        maxMemVals.push(maxMemVal);
+
+        var indexCPU = dummyCPUS.indexOf(maxCPUVal);
+        var indexMem = dummyMems.indexOf(maxMemVal);
+
+        if (indexCPU > -1) {
+            dummyCPUS.splice(indexCPU, 1);
+        }
+        if (indexMem > -1) {
+            dummyMems.splice(indexMem, 1);
+        }
+    }
+
+    names = []
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if ((jsonData[item].memory / totalMem) < titleThreshold) {
-                // Not one of the bigger processes w.r.t memory, so set its title to a blank string
-                namesMem.push("");
+
+            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+                // Not one of the bigger processes, so set its title to a blank string
+                // console.log("one: " + jsonData[item].cpu);
+                names.push("");
             } else {
                 // one of max vals, get real name
                 if (jsonData[item].info.type == "tab") {
@@ -309,7 +300,7 @@ function displayData(jsonData) {
                         title = url.match(/[^w]\w+\.{1}/g)
 
                         if (title == null) {
-                            namesMem.push(jsonData[item].info.title.slice(1,10))
+                            names.push(jsonData[item].info.title.slice(1,10))
                         }
                         else {
                             var matchNum = 0;
@@ -319,60 +310,22 @@ function displayData(jsonData) {
                             if (title[matchNum][0].match(/\w/g)){
                                 // first char is alpha, so slice from there
                                 finalTitle = title[matchNum].slice(0,-1);
-                                namesMem.push(finalTitle);
+                                names.push(finalTitle);
                             }
                             else {
                                 finalTitle = title[matchNum].slice(1,-1);
-                                namesMem.push(finalTitle);
+                                names.push(finalTitle);
                             }
 
                         }
+
                     }
                     else {
-                        namesMem.push(jsonData[item].info.title);
+                        names.push(jsonData[item].info.title);
                     }
                 }
                 else {
-                    namesMem.push(jsonData[item].info.type);
-                }
-            }
-            if ((jsonData[item].cpu / totalCPU) < titleThreshold) {
-                // Not one of the bigger processes w.r.t. cpu, so set its title to a blank string
-                namesCPU.push("");
-                continue;
-            } else {
-                // one of max vals, get real name
-                if (jsonData[item].info.type == "tab") {
-
-                    if (jsonData[item].info.title.length >= 10) {
-                        var url = jsonData[item].info.url
-                        title = url.match(/[^w]\w+\.{1}/g)
-
-                        if (title == null) {
-                            namesCPU.push(jsonData[item].info.title.slice(1,10))
-                        }
-                        else {
-                            var matchNum = 0;
-                            if (title[matchNum].match(/www/g)) {
-                                matchNum += 1
-                            }
-                            if (title[matchNum][0].match(/\w/g)){
-                                // first char is alpha, so slice from there
-                                finalTitle = title[matchNum].slice(0,-1);
-                                namesCPU.push(finalTitle);
-                            }
-                            else {
-                                finalTitle = title[matchNum].slice(1,-1);
-                                namesCPU.push(finalTitle);
-                            }
-                        }
-                    }
-                    else {
-                        namesCPU.push(jsonData[item].info.title);
-                    }
-                }
-                else {
-                    namesCPU.push(jsonData[item].info.type);
+                    names.push(jsonData[item].info.type);
                 }
             }
         }
@@ -398,6 +351,7 @@ function displayData(jsonData) {
     //     .attr("height", height)
     //     .append("g")
     //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+
 
 
     // arcCPU = d3.svg.arc()
