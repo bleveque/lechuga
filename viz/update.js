@@ -17,6 +17,9 @@ var width = '300',
                 .value(function(d) { return d; });
 
 
+/**
+ * Initial setup for d3 elements
+ */
 function setup() {
     var jsonData = BrowserUtils.getProcesses();
     cpus = [];
@@ -25,12 +28,13 @@ function setup() {
             cpus.push(jsonData[item].cpu);
         }
     }
-    console.log(cpus);
+    
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
-        //.attr("style", 'width:'+width+";height:"+height+";")
-        .attr("height", height)
-        .attr("width", width)
+        .attr({
+            height: height,
+            width: width
+        })
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
@@ -47,19 +51,8 @@ function setup() {
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("Loading...");
-    
 }
-function updateData(jsonData) {
-    // Build dataset from JSON object
-    jsonData = BrowserUtils.getProcesses();
-    cpus = [];
-    for (item in jsonData) {
-        if(jsonData.hasOwnProperty(item)) {
-            cpus.push(jsonData[item].cpu);
-        }
-    }
 
-}
 /**
  * Creates and returns a handler to close a tab
  * @param id    the tabId
@@ -136,6 +129,10 @@ function createProcessMenu(id, processList, container) {
     }
 }
 
+/**
+ * Update the d3 elements
+ * @param jsonData    an array of processes
+ */
 function displayData(jsonData) {
 
     if(!shouldUpdate) {
@@ -180,8 +177,6 @@ function displayData(jsonData) {
             dummyCPUS.splice(index, 1);
         }
     }
-
-    // lastData = cpus;
 
     names = []
     for (item in jsonData) {
@@ -281,8 +276,9 @@ function displayData(jsonData) {
 
    }
 
-return {displayData: displayData,
-        setup:  setup,
-        updateData: updateData}
+return {
+    displayData: displayData,
+    setup:  setup
+};
 
 })();
