@@ -1,6 +1,5 @@
 var update = (function() {
 
-
 //Width and height
 var w = 500;
 var h = 1000;

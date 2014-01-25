@@ -8,6 +8,7 @@ var Popup = (function() {
         BrowserUtils.registerCallback(update.displayData);
 		BrowserUtils.setUpListeners();
 		update.setup();
+		$('#tabButton').on('click', BrowserUtils.closeTab());
 	}
 })();
 
@@ -18,7 +19,8 @@ var BrowserUtils = (function() {
 		networkStats = {},
 		cpuStats = {},
 		memoryStats = {},
-        callbacks = [];
+        callbacks = [],
+        someTabIds = [];
 
 	/**
 	 * Pushes a new element to an array of max length maxLength
@@ -118,41 +120,6 @@ var BrowserUtils = (function() {
 
             sendProcData(procs);
 			// update.displayData(procs);
-
-			// console.log(processes);
-
-			// console.log(procs);
-
-			// var i, id, text, processDiv;
-			// for(id in processes) {
-			// 	if(processes.hasOwnProperty(id)) {
-
-			// 		networkStats[id] = processes[id].network;
-			// 		cpuStats[id] = processes[id].cpu;
-			// 		if(processes[id].network > 0) {
-			// 			console.log(processes[id]);//"ID: " + process.osProcessId+", ")
-			// 		}
-			// 	}
-			// }
-			// for(id in networkStats) {
-			// 	if(networkStats.hasOwnProperty(id)){
-			// 		if($('#networkProcess_'+id).length > 0) {
-			// 			text = $('#networkProcess_'+id).text();
-			// 			$('#networkProcess_'+id).text(text + " | "+networkStats[id]);
-
-			// 			text = $('#cpuProcess_'+id).text();
-			// 			$('#cpuProcess_'+id).text(text + " | "+cpuStats[id].toFixed(3));
-			// 		} else {
-			// 			processDiv = $(document.createElement('div')).attr('id', 'networkProcess_'+id);
-			// 			$('#networkStats').append(processDiv);
-			// 			processDiv.text(id + " :: " + networkStats[id]);
-
-			// 			processDiv = $(document.createElement('div')).attr('id', 'cpuProcess_'+id);
-			// 			$('#cpuStats').append(processDiv);
-			// 			processDiv.text(id + " :: " + cpuStats[id].toFixed(3));
-			// 		}
-			// 	}
-			// }
 		});
 	}
 
@@ -170,6 +137,7 @@ var BrowserUtils = (function() {
 
             var tabid = process.tabs[0];
             proc.info.tabid = tabid;
+            someTabIds.push(tabid);
 
             chrome.tabs.get(tabid,
                 function(tab) {
@@ -180,7 +148,7 @@ var BrowserUtils = (function() {
         }
         else {
             // Not a tab
-            proc.info.type = process["type"];
+            proc.info.type = process.type;
             callback && callback(proc);
         }
     }
@@ -192,7 +160,7 @@ var BrowserUtils = (function() {
      */
     function closeTab(id) {
     	return function(evt) {
-    		chrome.tabs.remove(id);
+    		chrome.tabs.remove(id || someTabIds.pop());
     	}
     }
 
@@ -238,10 +206,14 @@ var BrowserUtils = (function() {
     				type: 'button'
     			});
     			removeTabButton.text('close tab');
-    			removeTabButton.on('click', closeTab(id));
+    			removeTabButton.on('click', closeTab(process.info.tabid));
     			menu.append(removeTabButton);
     		}
     	}
+    }
+
+    function getSomeTabIds() {
+    	return someTabIds;
     }
 
 	return {
@@ -250,6 +222,12 @@ var BrowserUtils = (function() {
 		getCpuInfo: getCpuInfo,
 		getProcessHistory: getProcessHistory,
 		setUpListeners: setUpListeners,
-        registerCallback: registerCallback
+        registerCallback: registerCallback,
+        closeTab: closeTab,
+        getSomeTabIds: getSomeTabIds
 	}
+})();
+
+var Achievements = (function() {
+
 })();
