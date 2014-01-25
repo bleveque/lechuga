@@ -189,7 +189,6 @@ var BrowserUtils = (function() {
 		getProcessHistory: getProcessHistory,
 		setUpListeners: setUpListeners,
         registerCallback: registerCallback,
-        closeTab: closeTab,
         getSomeTabIds: getSomeTabIds
 	}
 })();

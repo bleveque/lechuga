@@ -1,19 +1,20 @@
 var update = (function() {
 
 //Width and height
-var width = '300';
-var height = '300';
-var radius = Math.min(width, height) / 2;
-var color = d3.scale.category20();
-var cpus;
-var arc;
-var svg;
-var g;
-var lastData;
-var path;
-var vizPie = d3.layout.pie()
-    .sort(null)
-    .value(function(d) { return d; });
+var width = '300',
+    height = '300',
+    radius = Math.min(width, height) / 2,
+    color = d3.scale.category20(),
+    cpus,
+    arc,
+    svg,
+    g,
+    lastData,
+    shouldUpdate = true,
+    path,
+    vizPie = d3.layout.pie()
+                .sort(null)
+                .value(function(d) { return d; });
 
 
 function setup() {
@@ -25,7 +26,6 @@ function setup() {
         }
     }
     console.log(cpus);
-
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
         //.attr("style", 'width:'+width+";height:"+height+";")
@@ -42,13 +42,20 @@ function setup() {
         .data(vizPie(cpus))
         .enter().append("g")
         .attr("class", "arc");
-
-    g.append("path").attr("d", arc);
-
-    // lastData = cpus;
     
 }
+function updateData(jsonData) {
+    // Build dataset from JSON object
+    jsonData = BrowserUtils.getProcesses();
+    cpus = [];
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
+    }
+    console.log("cpus!!!!!!!!" + cpus)
 
+}
 /**
  * Creates and returns a handler to close a tab
  * @param id    the tabId
@@ -87,13 +94,27 @@ function getArrayEltByProp(array, prop, val) {
  */
 function createProcessMenu(id, processList, container) {
     return function(evt) {
-        var left = evt.offset().left,
-            top = evt.offset().top,
+        shouldUpdate = false;
+        evt.stopPropagation();
+        $('#procMenu').remove();
+        $('#lettuceWrap').on('click', function() {
+            $('#procMenu').remove();
+            shouldUpdate = true;
+        });
+        
+        var left = evt.offsetX,
+            top = evt.offsetY,
             menu = $(document.createElement('div')),
             removeTabButton,
             process;
         container = container || $('#lettuceWrap');
         menu.attr('id', 'procMenu');
+        menu.css({
+            position: 'absolute',
+            left: left,
+            top: top,
+            background: 'rgba(255,100,0,0.5)'
+        })
         container.append(menu);
         process = getArrayEltByProp(processList, 'id', id);
         if(process && process.info && process.info.type === 'tab') {
@@ -102,13 +123,19 @@ function createProcessMenu(id, processList, container) {
                 type: 'button'
             });
             removeTabButton.text('close tab');
-            removeTabButton.on('click', closeTab(process.info.tabid));
+            removeTabButton.on('click', function(evt) {
+                shouldUpdate = true;
+                closeTab(process.info.tabid)(evt);
+            });
             menu.append(removeTabButton);
         }
     }
 }
 
 function displayData(jsonData) {
+    if(!shouldUpdate) {
+        return;
+    }
     $('#annulusContainer').empty(); // Clear
 
     // svg = d3.select("#annulusContainer").append("svg")
@@ -127,12 +154,35 @@ function displayData(jsonData) {
     //     .attr("class", "arc");
 
     // g.append("path").attr("d", arc);
-    
-    // Build dataset from JSON object
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             cpus.push(jsonData[item].cpu);
+        }
+    }
+
+    var total = 0;  //Variable to hold your total
+
+    for(var i=0, len=cpus.length; i<len; i++){
+        total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+    }
+    if (total === 0) {
+        return;
+    }
+
+    // console.log("cpus" + cpus)
+
+
+    // For finding maxes
+    var dummyCPUS = cpus.slice(0);
+
+    maxCPUVals = [];
+    for(var i=0;i<4;i++) {
+        var maxVal = Math.max.apply(Math, dummyCPUS);
+        maxCPUVals.push(maxVal);
+        var index = dummyCPUS.indexOf(maxVal);
+        if (index > -1) {
+            dummyCPUS.splice(index, 1);
         }
     }
 
@@ -142,37 +192,39 @@ function displayData(jsonData) {
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if (jsonData[item].info.type == "tab") {
 
-                if (jsonData[item].info.title.length >= 10) {
-                    var url = jsonData[item].info.url
-                    // console.log(url)
-                    title = url.match(/\.{1}\w+\.{1}/g)
-                    
-                    // console.log("title: " + title)
+            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+                // Not one of the bigger processes, so set its title to a blank string
+                // console.log("one: " + jsonData[item].cpu);
+                names.push("");
+            } else {
+                // one of max vals, get real name
+                if (jsonData[item].info.type == "tab") {
 
-                    if (title == null) {
-                        names.push(jsonData[item].info.title.slice(1,10))
+                    if (jsonData[item].info.title.length >= 10) {
+                        var url = jsonData[item].info.url
+                        title = url.match(/\.{1}\w+\.{1}/g)
+                        
+                        if (title == null) {
+                            names.push(jsonData[item].info.title.slice(1,10))
+                        }
+                        else {
+                            
+                            finalTitle = title[0].slice(1,-2);
+                            names.push(finalTitle);
+                        }
+                        
                     }
                     else {
-                        
-                        finalTitle = title[0].slice(1,-2);
-                        // console.log(finalTitle);
-                        names.push(finalTitle);
+                        names.push(jsonData[item].info.title);
                     }
-                    
                 }
                 else {
-                    names.push(jsonData[item].info.title);
+                    names.push(jsonData[item].info.type);
                 }
-            }
-            else {
-                names.push(jsonData[item].info.type);
             }
         }
     }
-
-    // console.log()
 
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")
@@ -195,15 +247,20 @@ function displayData(jsonData) {
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
-        .attr("class", "arc")
-        .on('click', function(evt) {
-            console.log(this);
-        });
+        .attr("class", "arc");
+        // .on('click', function(evt) {
+        //     console.log(this);
+        // });
 
     // Draws and colors
     g.append("path")
       .attr("d", arc)
       .style("fill", function(d, i) { return color(i); });
+
+    svg.selectAll('path').each(function(d, i) {
+        $(this).attr('id', jsonData[i].id)
+        $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    });
 
     g.append("text")
       .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
@@ -211,11 +268,17 @@ function displayData(jsonData) {
       .style("text-anchor", "middle")
       .style("font-size","8px")
       .data(names)
-      .text(function(d) { return d; });
+      .text(function(d, i) {return d; });
+
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("CPU Usage");
 
    }
 
 return {displayData: displayData,
-        setup:  setup}
+        setup:  setup,
+        updateData: updateData}
 
 })();
