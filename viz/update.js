@@ -20,7 +20,6 @@ var width = '300',
                 .sort(null)
                 .value(function(d) { return d; });
 
-
 /**
  * Initial setup for d3 elements
  */
@@ -156,6 +155,27 @@ function createProcessMenu(id, processList, container) {
     }
 }
 
+
+/**
+ * Filters list of processes to reflect current filter settings
+ * @param jsonData     the list of processes to filter
+ * @return             the filtered list
+ */
+function filterProcesses(jsonData) {
+    var filter = $('#filterSelect').val().toLowerCase().replace(/ /g,''),
+        ret = [],
+        type,
+        i;
+    for(i=0;i<jsonData.length;i++) {
+        // debugger;
+        type = jsonData[i].info.type;
+        if(filter === 'all' || (type === 'tab' &&  filter==='tabsonly') || (type !== 'tab' && filter==='notabs')){
+            ret.push(jsonData[i]);
+        }
+    }
+    return ret;
+}
+
 /**
  * Update the d3 elements
  * @param jsonData    an array of processes
@@ -168,6 +188,7 @@ function displayData(jsonData) {
     $('#cpuContainer').empty(); // Clear
     $('#memContainer').empty(); // Clear
 
+    jsonData = filterProcesses(jsonData);
     cpus = [];
     mems = [];
     for (item in jsonData) {

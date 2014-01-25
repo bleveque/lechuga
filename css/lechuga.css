@@ -38,6 +38,11 @@ body {
 	width: 96%;
 }
 
+#filters {
+	position: absolute;
+	top: -50px;
+}
+
 #lettuceWrap {
 	background: #eeeeee;
 	height: 100%;
