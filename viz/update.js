@@ -40,6 +40,11 @@ function setup() {
         .data(vizPie(cpus))
         .enter().append("g")
         .attr("class", "arc");
+
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Loading...");
     
 }
 function updateData(jsonData) {
@@ -55,7 +60,6 @@ function updateData(jsonData) {
 
 }
 function displayData(jsonData) {
-    $('#annulusContainer').empty(); // Clear
 
     // svg = d3.select("#annulusContainer").append("svg")
     //     .attr("width", width)
@@ -88,6 +92,10 @@ function displayData(jsonData) {
     if (total == 0) {
         return;
     }
+
+    $('#annulusContainer').empty(); // Clear
+    $('#loading').empty(); // Clear
+
 
     console.log("cpus" + cpus)
 
@@ -128,13 +136,17 @@ function displayData(jsonData) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
                         else {
-                            if (title[0][0].match(/\w/g)){
+                            var matchNum = 0;
+                            if (title[matchNum].match(/www/g)) {
+                                matchNum += 1
+                            }
+                            if (title[matchNum][0].match(/\w/g)){
                                 // first char is alpha, so slice from there
-                                finalTitle = title[0].slice(0,-1);
+                                finalTitle = title[matchNum].slice(0,-1);
                                 names.push(finalTitle);
                             }
                             else {
-                                finalTitle = title[0].slice(1,-1);
+                                finalTitle = title[matchNum].slice(1,-1);
                                 names.push(finalTitle);
                             }
                             
@@ -174,7 +186,8 @@ function displayData(jsonData) {
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
-        .attr("class", "arc");
+        .attr("class", "arc")
+        .style("stroke-width", 3);
 
     // Draws and colors
     g.append("path")
