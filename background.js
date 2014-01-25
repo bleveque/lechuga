@@ -1,7 +1,7 @@
 var BrowserUtils = (function() {
 	var historyLength = 10,
 		procs = [], // last updated process list
-		procHistory = [], // history of historyLength previous process lists
+		procHistory = {}, // history of historyLength previous process lists
 		networkStats = {},
 		cpuStats = {},
 		memoryStats = {},

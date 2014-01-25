@@ -39,7 +39,7 @@ function setup() {
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("Loading...");
-
+    
 }
 function updateData(jsonData) {
     // Build dataset from JSON object
@@ -50,27 +50,10 @@ function updateData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
-    console.log("cpus!!!!!!!!" + cpus)
 
 }
 function displayData(jsonData) {
 
-    // svg = d3.select("#annulusContainer").append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
-    // arc = d3.svg.arc()
-    //     .innerRadius(radius - 80)
-    //     .outerRadius(radius - 10);
-
-    // g = svg.selectAll(".arc")
-    //     .data(vizPie(lastData))
-    //     .enter().append("g")
-    //     .attr("class", "arc");
-
-    // g.append("path").attr("d", arc);
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
@@ -89,10 +72,6 @@ function displayData(jsonData) {
 
     $('#annulusContainer').empty(); // Clear
     $('#loading').empty(); // Clear
-
-
-    console.log("cpus" + cpus)
-
 
     // For finding maxes
     var dummyCPUS = cpus.slice(0);
@@ -125,7 +104,7 @@ function displayData(jsonData) {
                     if (jsonData[item].info.title.length >= 10) {
                         var url = jsonData[item].info.url
                         title = url.match(/[^w]\w+\.{1}/g)
-
+                        
                         if (title == null) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
@@ -143,9 +122,9 @@ function displayData(jsonData) {
                                 finalTitle = title[matchNum].slice(1,-1);
                                 names.push(finalTitle);
                             }
-
+                            
                         }
-
+                        
                     }
                     else {
                         names.push(jsonData[item].info.title);
