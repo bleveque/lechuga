@@ -104,23 +104,32 @@ body {
             filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
 }
 
+#nameDiv {
+	overflow: hidden;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 100%;
+}
+
 #procMenu {
-	background-color: rgba(50,50,50,0.85);
+	background-color: rgba(50,50,50,0.95);
 	border-radius: 5px;
 	color: white;
 	height: 100px;
 	position: absolute;
 	width: 200px;
 }
-#procMenu>button {
-	background-color: #f7fff9;
+#procMenu button {
+	/*background-color: #f7fff9;
 	border: 1px solid #000;
 	color: #000;
 	margin-left:66%;
 	margin-top:1%;
 	padding-left:2px;
 	padding-right:2px;
-	width: 32%;
+	position: absolute;
+	width: 32%;*/
 }
 #procMenu>div {
 	margin-top: 0.5em;

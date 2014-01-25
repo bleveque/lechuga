@@ -172,13 +172,16 @@ function createProcessMenu(id, processList, container) {
         var left = evt.clientX,
             top = evt.clientY,
             menu = $(document.createElement('div')),
-            nameDiv = $(document.createElement('div')),
+            nameDiv = $(document.createElement('div')).attr('id', 'nameDiv'),
             memDiv = $(document.createElement('div')),
             cpuDiv = $(document.createElement('div')),
             removeTabButton,
+            removeTabButtonContainer,
             process,
+            height,
             name,
             mem,
+            tab = false,
             cpu;
         container = container || $('#lettuceWrap');
         menu.attr('id', 'procMenu');
@@ -187,6 +190,40 @@ function createProcessMenu(id, processList, container) {
             top: top + 'px',
         });
         container.append(menu);
+
+        
+
+        process = getArrayEltByProp(processList, 'id', id);
+        mem = convertMetric(process.memory);
+        cpu = process.cpu.toFixed(2) + "% CPU";
+        if(process && process.info && process.info.type === 'tab') {
+            removeTabButtonContainer = $(document.createElement('div'));
+            removeTabButton = $(document.createElement('button'));
+            removeTabButton.attr({
+                type: 'button'
+            });
+            removeTabButton.text('close tab');
+            removeTabButton.on('click', function(evt) {
+                shouldUpdate = true;
+                closeTab(process.info.tabid)(evt);
+            });
+            removeTabButtonContainer.append(removeTabButton);
+            tab = true;
+            name = process.info.title;
+            height = menu.height();
+            menu.css('height', height + 30 + "px");
+        } else {
+            name = process.info.type;
+        }
+        nameDiv.text(name);
+        memDiv.text(mem);
+        cpuDiv.text(cpu);
+        menu.append(nameDiv);
+        menu.append(memDiv);
+        menu.append(cpuDiv);
+        if(tab) {
+            menu.append(removeTabButtonContainer);
+        }
 
         if(menu.offset().left + menu.width() > container.width()) {
             menu.css({
@@ -198,31 +235,6 @@ function createProcessMenu(id, processList, container) {
                 top: top - menu.height() - 10 + 'px'
             })
         }
-
-        process = getArrayEltByProp(processList, 'id', id);
-        mem = convertMetric(process.memory);
-        cpu = process.cpu;
-        if(process && process.info && process.info.type === 'tab') {
-            removeTabButton = $(document.createElement('button'));
-            removeTabButton.attr({
-                type: 'button'
-            });
-            removeTabButton.text('close tab');
-            removeTabButton.on('click', function(evt) {
-                shouldUpdate = true;
-                closeTab(process.info.tabid)(evt);
-            });
-            menu.append(removeTabButton);
-            name = process.info.title;
-        } else {
-            name = process.info.type;
-        }
-        nameDiv.text(name);
-        memDiv.text(mem);
-        cpuDiv.text(cpu);
-        menu.append(nameDiv);
-        menu.append(memDiv);
-        menu.append(cpuDiv);
 
     }
 }
@@ -398,6 +410,18 @@ function displayData(jsonData) {
 
     pathMem.data(vizPieMem(mems));
     pathMem.transition().duration(1000).attrTween("d", arcMemTween);
+
+    // click handlers for wedges
+    svgCPU.selectAll('path').each(function(d, i) {
+        $(this).attr('id', jsonData[i].id)
+        $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    });
+
+    svgMem.selectAll('path').each(function(d, i) {
+        // debugger;
+        $(this).attr('id', jsonData[i].id)
+        $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    });
 
    
     
