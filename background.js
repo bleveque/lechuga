@@ -20,6 +20,48 @@ var BrowserUtils = (function() {
 		array.push(newElt);
 	}
 
+    function formatProcHistory(procHistory) {
+        var newProcHistory = {},
+            row,
+            col,
+            proc,
+            procName,
+            procz;
+
+        for (row = 0; row < procHistory.length; row++) {
+            procz = procHistory[row];
+            console.log(procz.length, procz, procHistory[row].length);
+            for (col = 0; col < procz.length; col++) {
+                proc = procz[col];
+                procName = proc.info.title || proc.info.type;
+                if (!(procName in newProcHistory)) {
+                    newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
+                }
+            }
+        }
+
+        // var newProcHistory = {};
+        // for (var row = 0; row < procHistory.length; row++) {
+        //     procs = procHistory[row];
+        //     console.log(procs.length, procs);
+        //     for (var col = 0; col < procs.length; col++) {
+        //         var proc = procs[col];
+        //         console.log(proc.info);
+        //         var procName = proc.info.title || proc.info.type;
+
+        //         if (newProcHistory.hasOwnProperty(procName)) {
+        //             newProcHistory[procName].push(proc.cpu);
+        //         }
+        //         else {
+        //             newProcHistory[procName] = [proc.cpu];
+        //         }
+        //     }
+        // }
+        // console.log("NEWPROCHISTORY:", newProcHistory);
+        return newProcHistory;
+
+    }
+
 	/**
 	 * Returns array of pre-processed processes
 	 * Each process object has properties for id, network, cpu, and info
@@ -93,49 +135,67 @@ var BrowserUtils = (function() {
 	 */
 	function setUpListeners() {
 		chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
+            var processesArray = [];
 			procs.length = 0; // clear procs array
 			for(id in processes) {
 				if(processes.hasOwnProperty(id)) {
-					get_proc_info(processes[id], function(proc) {
-						procs.push(proc);
-					});
+                    processesArray.push(processes[id]);
+					// get_proc_info(processes[id], function(proc) {
+					// 	procs.push(proc);
+     //                    console.log(proc.info);
+					// });
 				}
 			}
 
-			lettucePush(procHistory, procs, historyLength);
+            get_proc_info(processesArray, function() {
+    			lettucePush(procHistory, procs, historyLength);
+                // console.log(procHistory);
+                formatProcHistory(procHistory);
+                sendProcData(procs);
+    			// update.displayData(procs);
+            });
 
-            sendProcData(procs);
-			// update.displayData(procs);
 		});
 	}
 
-    function get_proc_info(process, callback) {
-        var proc = {
-            id: process.id,
-            network: process.network,
-            cpu: process.cpu,
-            info: {}
-        };
+    function get_proc_info(processes, callback) {
+        if (processes.length > 0) {
+            var process = processes.pop();
+            var proc = {
+                id: process.id,
+                network: process.network,
+                cpu: process.cpu,
+                info: {}
+            };
 
-        if (process.tabs.length === 1) {
-            // This is a tab process
-            proc.info.type = "tab";
+            if (process.tabs.length === 1) {
+                // This is a tab process
+                proc.info.type = "tab";
 
-            var tabid = process.tabs[0];
-            proc.info.tabid = tabid;
-            someTabIds.push(tabid);
+                var tabid = process.tabs[0];
+                proc.info.tabid = tabid;
+                someTabIds.push(tabid);
 
-            chrome.tabs.get(tabid,
-                function(tab) {
-                    proc.info.title = tab.title;
-                    proc.info.url = tab.url;
-                    callback && callback(proc);
-                });
+                chrome.tabs.get(tabid,
+                    function(tab) {
+                        proc.info.title = tab.title;
+                        proc.info.url = tab.url;
+                        procs.push(proc);
+                        get_proc_info(processes, callback);
+                        // callback && callback(proc);
+                    });
+            }
+            else {
+                // Not a tab
+                proc.info.type = process.type;
+                procs.push(proc);
+                get_proc_info(processes, callback);
+                // callback && callback(proc);
+            }
         }
         else {
-            // Not a tab
-            proc.info.type = process.type;
-            callback && callback(proc);
+            // processes is empty
+            callback && callback();
         }
     }
 
@@ -213,3 +273,5 @@ var BrowserUtils = (function() {
         getSomeTabIds: getSomeTabIds
 	}
 })();
+
+BrowserUtils.setUpListeners();
