@@ -256,30 +256,6 @@ function displayData(jsonData) {
     $('#loading').empty(); // Clear
     $('#filters').css('display','block');
 
-    // For the most relevant names to display on the chart
-    var dummyCPUS = cpus.slice(0);
-    var dummyMems = mems.slice(0);
-    maxCPUVals = [];
-    maxMemVals = [];
-
-    for(var i=0;i<4;i++) {
-        var maxCPUVal = Math.max.apply(Math, dummyCPUS);
-        maxCPUVals.push(maxCPUVal);
-
-        var maxMemVal = Math.max.apply(Math, dummyMems);
-        maxMemVals.push(maxMemVal);
-
-        var indexCPU = dummyCPUS.indexOf(maxCPUVal);
-        var indexMem = dummyMems.indexOf(maxMemVal);
-
-        if (indexCPU > -1) {
-            dummyCPUS.splice(indexCPU, 1);
-        }
-        if (indexMem > -1) {
-            dummyMems.splice(indexMem, 1);
-        }
-    }
-
     namesCPU = []
     namesMem = []
 
