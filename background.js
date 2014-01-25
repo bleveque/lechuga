@@ -1,7 +1,7 @@
 var BrowserUtils = (function() {
 	var historyLength = 10,
 		procs = [], // last updated process list
-		procHistory = [], // history of historyLength previous process lists
+		procHistory = {}, // history of historyLength previous process lists
 		networkStats = {},
 		cpuStats = {},
 		memoryStats = {},
@@ -14,97 +14,25 @@ var BrowserUtils = (function() {
 	 */
 	function lettucePush(array, newElt, maxLength) {
 		maxLength = maxLength || 10;
+        // console.log("ARRAY:", array)
+        var n = (array[0] && array[0].length) || 0;
 		if(array.length >= maxLength) {
-			array.splice(0, array.length - maxLength + 1);
+			array.splice(0, n - maxLength + 1);
 		}
-		array.push(newElt);
+
+        for (var i=0; i < newElt.length; i++) {
+            var proc = newElt[i];
+            var procName = proc.info.type === 'tab' ? proc.info.title : proc.info.type;
+            if (!array[procName]) {
+                array[procName] = [];
+                for(var j=0; j<=n; j++) array[procName][j] = 0;
+            }
+            // console.log("ARRAY:", procName, array[]);
+            array[procName].push(proc.cpu)
+        }
+		// array.push(newElt);
 	}
 
-    function convert(inputArray, prop) {
-        var bigArray = inputArray.slice(0);
-        var snapshot,
-            proc,
-            i, j,
-            ret = {},
-            name,
-            k;
-        console.log(bigArray);
-        for(i=0;i<bigArray.length;i++) {
-            snapshot = bigArray[i];
-            (function(snapshot) {
-                for(j=0;j<snapshot.length;j++) {
-                    name = snapshot[j].info.type === 'tab' ? snapshot[j].info.title : snapshot[j].info.type;
-                    if(!ret[name]) {
-                        // console.log('new');
-                        ret[name] = new Array(0);
-                        for(k=0;k<i-1;k++) {
-                            ret[name].push(0);
-                        }
-                    }
-                    if(name.match(/Pie/)) {
-                        console.log('i = '+i+', j = '+j+', matched: ');
-                        console.log(snapshot[j][prop]);
-                    }
-                    ret[name][i] = snapshot[j][prop];
-                
-                }
-            })(snapshot);
-        }
-        // console.log(ret);
-
-        return ret;
-    }
-
-    function formatProcHistory(procHistory) {
-        console.log(procHistory);
-        var newProcHistory = {},
-            row,
-            col,
-            proc,
-            procName,
-            procz;
-
-        // Initialize newProcHistory attributes with zeros
-        for (row = 0; row < procHistory.length; row++) {
-            procz = procHistory[row];
-            for (col = 0; col < procz.length; col++) {
-                proc = procz[col];
-                procName = proc.info.title || proc.info.type;
-                if (!(procName in newProcHistory)) {
-                    //console.log(col, row);
-                    newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
-                }
-                newProcHistory[procName] += proc.cpu;
-                if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
-                    console.log(procName, row)
-                }
-                // console.log(procName, row, newProcHistory[procName][row]);
-            }
-            // console.log(newProcHistory, row);
-        }
-
-        // var newProcHistory = {};
-        // for (var row = 0; row < procHistory.length; row++) {
-        //     procs = procHistory[row];
-        //     console.log(procs.length, procs);
-        //     for (var col = 0; col < procs.length; col++) {
-        //         var proc = procs[col];
-        //         console.log(proc.info);
-        //         var procName = proc.info.title || proc.info.type;
-
-        //         if (newProcHistory.hasOwnProperty(procName)) {
-        //             newProcHistory[procName].push(proc.cpu);
-        //         }
-        //         else {
-        //             newProcHistory[procName] = [proc.cpu];
-        //         }
-        //     }
-        // }
-        console.log("NEWPROCHISTORY", newProcHistory[3]);
-        // console.log("NEWPROCHISTORY:", newProcHistory['▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube']);
-        return newProcHistory;
-
-    }
 
 	/**
 	 * Returns array of pre-processed processes
@@ -179,6 +107,7 @@ var BrowserUtils = (function() {
 	 */
 	function setUpListeners() {
 		chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
+            // registerCallback(update.updateData);
             var processesArray = [];
 			procs.length = 0; // clear procs array
 			for(id in processes) {
@@ -193,10 +122,16 @@ var BrowserUtils = (function() {
 
             get_proc_info(processesArray, function() {
     			lettucePush(procHistory, procs, historyLength);
-                //formatProcHistory(procHistory);
-                var ret = convert(procHistory, 'cpu');
+// <<<<<<< HEAD
+//                 //formatProcHistory(procHistory);
+//                 var ret = convert(procHistory, 'cpu');
+// =======
+//                 // convert(procHistory, "cpu");
+//                 // formatProcHistory(procHistory);
+// >>>>>>> 3c2f8ccc3df5e562cdec78debdcb538453411a93
                 sendProcData(procs);
-    			// update.displayData(procs);
+                // alert(procs[0].cpu);
+    			// update1.displayData(procHistory);
             });
 
 		});
@@ -241,65 +176,6 @@ var BrowserUtils = (function() {
             // processes is empty
             callback && callback();
         }
-    }
-
-    /**
-     * Creates and returns a handler to close a tab
-     * @param id    the tabId
-     * @return      handler to close the relevant tab
-     */
-    function closeTab(id) {
-    	return function(evt) {
-    		chrome.tabs.remove(id || someTabIds.pop());
-    	}
-    }
-
-    /**
-     * Returns the first element in an array matching the
-     * input property/value pair
-     * @param array      the array in question
-     * @param prop       the property name
-     * @param val        the value of the property to match
-     */
-    function getArrayEltByProp(array, prop, val) {
-    	var i;
-    	for(i=0;i<array.length;i++) {
-    		if(array[i][prop] === val) {
-    			return array[i];
-    		}
-    	}
-    	return null;
-    }
-
-    /**
-     * Creates and returns a click handler that creates
-     * a menu with additional information about the selected
-     * process
-     * @param id             the id of the selected process
-     * @param processList    the list of all processes
-     * @return               hover handler
-     */
-    function createProcessMenu(id, processList, container) {
-    	return function(evt) {
-    		var left = evt.offset().left,
-    			top = evt.offset().top,
-    			menu = $(document.createElement('div')),
-    			removeTabButton,
-    			process;
-    		container = container || $('#lettuceWrap');
-    		menu.attr('id', 'procMenu');
-    		container.append(menu);
-    		process = getArrayEltByProp(processList, 'id', id);
-    		if(process && process.info && process.info.type === 'tab') {
-    			removeTabButton = $(document.createElement('button'));
-    			removeTabButton.attr({
-    				type: 'button'
-    			});
-    			removeTabButton.text('close tab');
-    			removeTabButton.on('click', closeTab(process.info.tabid));
-    			menu.append(removeTabButton);
-    		}
-    	}
     }
 
     function getSomeTabIds() {

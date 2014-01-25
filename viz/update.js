@@ -17,7 +17,14 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = [1,2,3]
+    var jsonData = BrowserUtils.getProcesses();
+    cpus = [];
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
+    }
+    console.log(cpus);
 
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
@@ -40,6 +47,65 @@ function setup() {
 
     // lastData = cpus;
     
+}
+
+/**
+ * Creates and returns a handler to close a tab
+ * @param id    the tabId
+ * @return      handler to close the relevant tab
+ */
+function closeTab(id) {
+    return function(evt) {
+        chrome.tabs.remove(id || someTabIds.pop());
+    }
+}
+
+/**
+ * Returns the first element in an array matching the
+ * input property/value pair
+ * @param array      the array in question
+ * @param prop       the property name
+ * @param val        the value of the property to match
+ */
+function getArrayEltByProp(array, prop, val) {
+    var i;
+    for(i=0;i<array.length;i++) {
+        if(array[i][prop] === val) {
+            return array[i];
+        }
+    }
+    return null;
+}
+
+/**
+ * Creates and returns a click handler that creates
+ * a menu with additional information about the selected
+ * process
+ * @param id             the id of the selected process
+ * @param processList    the list of all processes
+ * @return               hover handler
+ */
+function createProcessMenu(id, processList, container) {
+    return function(evt) {
+        var left = evt.offset().left,
+            top = evt.offset().top,
+            menu = $(document.createElement('div')),
+            removeTabButton,
+            process;
+        container = container || $('#lettuceWrap');
+        menu.attr('id', 'procMenu');
+        container.append(menu);
+        process = getArrayEltByProp(processList, 'id', id);
+        if(process && process.info && process.info.type === 'tab') {
+            removeTabButton = $(document.createElement('button'));
+            removeTabButton.attr({
+                type: 'button'
+            });
+            removeTabButton.text('close tab');
+            removeTabButton.on('click', closeTab(process.info.tabid));
+            menu.append(removeTabButton);
+        }
+    }
 }
 
 function displayData(jsonData) {
@@ -69,6 +135,7 @@ function displayData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
+
     // lastData = cpus;
 
     names = []
@@ -128,7 +195,10 @@ function displayData(jsonData) {
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
-        .attr("class", "arc");
+        .attr("class", "arc")
+        .on('click', function(evt) {
+            console.log(this);
+        });
 
     // Draws and colors
     g.append("path")
