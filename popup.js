@@ -127,7 +127,8 @@ var Popup = (function() {
 	return {
 		getProcesses: getProcesses,
 		getNetworkInfo: getNetworkInfo,
-		getCpuInfo: getCpuInfo
+		getCpuInfo: getCpuInfo,
+		getProcessHistory: getProcessHistory
 	}
 
 })();
