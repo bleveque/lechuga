@@ -87,6 +87,7 @@ var Popup = (function() {
 			update.displayData(procs);
 
 			console.log(processes);
+
 			console.log(procs);
 
 			var i, id, text, processDiv;
@@ -162,5 +163,4 @@ var Popup = (function() {
 		getProcessHistory: getProcessHistory
 
 	}
-
 })();
