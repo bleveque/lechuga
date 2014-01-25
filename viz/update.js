@@ -16,7 +16,7 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = [1,2,3];
+    cpus = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     // d3.select("#lettuceWrap").selectAll("p")
     //         .data(cpus)
     //         .enter()
@@ -42,8 +42,6 @@ function setup() {
         .innerRadius(radius - 80)
         .outerRadius(radius - 10);
 
-    console.log(vizPie(cpus));
-
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
@@ -53,10 +51,6 @@ function setup() {
       .attr("d", arc)
       .style("fill", function(d) { return color(d); });
 
-    path = svg.datum(cpus).selectAll("path")
-              .data(vizPie)
-              .attr("d", arc)
-              .each(function(d) { this._current = d; }); // store the initial angles
     
 }
 
@@ -78,36 +72,35 @@ function displayData(jsonData) {
     //     });
 
     // Creates new arcs based on new data
-    // vizPie = d3.layout.pie()
-    //            .sort(null)
-    //            .value(function(d) { return d; });
+    vizPie = d3.layout.pie()
+               .sort(null)
+               .value(function(d) { return d; });
 
-    // g.data(vizPie(cpus))
-    //  .attr("class", "arc")
-    //  .transition()
-    //  .duration(1000);
+    g.data(vizPie(cpus))
+     .attr("class", "arc")
+     .transition()
+     .duration(1000);
 
-    // g.selectAll("path")
-    //   .attr("d", arc)
-    //   .style("fill", function(d) { return color(d); });
+    g.selectAll("path")
+      .attr("d", arc)
+      .style("fill", function(d) { return color(d); });
 
     path = svg.datum(cpus).selectAll("path")
-                          .attr("d", arc)
                           .data(vizPie)
-    //                       .attr("fill", function(d, i) { return color(i); });
+                          .attr("d", arc)
+                          // .attr("fill", function(d, i) { return color(i); });
 
-    // path = path.data(vizPie);
+
     // path.attr("d", arc)
-    console.log("vizPie data?" + vizPie)
+    // path = path.data(vizPie);
 
-    path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+    // path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
 
    }
 // During the transition, _current is updated in-place by d3.interpolate.
 function arcTween(a) {
   var i = d3.interpolate(this._current, a);
   this._current = i(0);
-
   return function(t) {
     return arc(i(t));
   };
