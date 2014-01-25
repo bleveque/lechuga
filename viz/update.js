@@ -239,38 +239,17 @@ function displayData(jsonData) {
     }
 
     $('#loading').empty(); // Clear
-
-    // For the most relevant names to display on the chart
-    var dummyCPUS = cpus.slice(0);
-    var dummyMems = mems.slice(0);
-    maxCPUVals = [];
-    maxMemVals = [];
-
-    for(var i=0;i<4;i++) {
-        var maxCPUVal = Math.max.apply(Math, dummyCPUS);
-        maxCPUVals.push(maxCPUVal);
-
-        var maxMemVal = Math.max.apply(Math, dummyMems);
-        maxMemVals.push(maxMemVal);
-
-        var indexCPU = dummyCPUS.indexOf(maxCPUVal);
-        var indexMem = dummyMems.indexOf(maxMemVal);
-
-        if (indexCPU > -1) {
-            dummyCPUS.splice(indexCPU, 1);
-        }
-        if (indexMem > -1) {
-            dummyMems.splice(indexMem, 1);
-        }
-    }
+    $('#filters').css('display','block');
 
     namesCPU = []
     namesMem = []
 
+    var titleThreshold = .07;
+
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if (maxMemVals.indexOf(jsonData[item].memory) === -1) {
+            if ((jsonData[item].memory / totalMem) < titleThreshold) {
                 // Not one of the bigger processes w.r.t memory, so set its title to a blank string
                 namesMem.push("");
             } else {
@@ -309,7 +288,7 @@ function displayData(jsonData) {
                     namesMem.push(jsonData[item].info.type);
                 }
             }
-            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+            if ((jsonData[item].cpu / totalCPU) < titleThreshold) {
                 // Not one of the bigger processes w.r.t. cpu, so set its title to a blank string
                 namesCPU.push("");
                 continue;

@@ -53,13 +53,16 @@ body {
 }
 
 #filters {
-	margin-left: 75%;
+	display: none;
+	/*margin-left: 75%;*/
 	position: absolute;
-	top: -50px;
+	left: 320px;
+	text-align: center;
+	top: 100px;
 }
 
 #lettuceWrap {
-	background: #eeeeee;
+	background: #eeeeee; /*url('squared_metal/squared_metal.png');*/
 	height: 100%;
 	position: relative;
 	width: 100%;
@@ -89,8 +92,9 @@ body {
 }
 
 #title {
+	/*color: #004400;*/
 	font-size: 40px;
-	height: 50px;
+	height: 60px;
 	position: absolute;
 	text-align: center;
 	text-shadow: 2px 2px #7ca570;
