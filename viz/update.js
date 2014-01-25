@@ -232,6 +232,7 @@ function displayData(jsonData) {
     }
 
     $('#loading').empty(); // Clear
+    $('#filters').css('display','block');
 
     // For finding maxes
     var dummyCPUS = cpus.slice(0);
