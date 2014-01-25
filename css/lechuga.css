@@ -11,6 +11,11 @@
 	height: 305px;
 }
 
+#cpuContainer>svg{
+    -webkit-filter: drop-shadow( 0px 5px 5px #7EBA8C );
+            filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
+}
+
 #annulusTitle {
 	font-size: 30px;
 	position: absolute;
@@ -61,6 +66,10 @@ body {
 	top: 100px;
 }
 
+#filterSelect {
+	background-color: #f7fff9;
+}
+
 #lettuceWrap {
 	background: #eeeeee; /*url('squared_metal/squared_metal.png');*/
 	height: 100%;
@@ -79,6 +88,11 @@ body {
 	height: 305px;
 }
 
+#memContainer>svg {
+    -webkit-filter: drop-shadow( 0px 5px 5px #7EBA8C );
+            filter: drop-shadow( 0px 5px 5px #7EBA8C ); /* Same syntax as box-shadow */
+}
+
 #procMenu {
 	background-color: #222222;
 	border-radius: 5px;
@@ -86,13 +100,26 @@ body {
 	height: 100px;
 	width: 200px;
 }
-
-#filterSelect {
+#procMenu>button {
 	background-color: #f7fff9;
+	border: 1px solid #000;
+	color: #000;
+	margin-left:66%;
+	margin-top:1%;
+	padding-left:2px;
+	padding-right:2px;
+	width: 32%;
+}
+#procMenu>div {
+	margin-top: 0.5em;
+	margin-left: 10%;
+	text-align: center;
+	width: 80%;
 }
 
 #title {
 	/*color: #004400;*/
+	font-family: 'Actor', 'Duru Sans', Arial, sans-serif;
 	font-size: 40px;
 	height: 60px;
 	position: absolute;
@@ -101,12 +128,3 @@ body {
 	top: 5px;
 	width: 100%;
 }
-#cpuContainer>svg.dough{
-    -webkit-filter: drop-shadow( -5px -5px 2px #7EBA8C );
-            filter: drop-shadow( -5px -5px 2px #7EBA8C ); /* Same syntax as box-shadow */
-}
-#memContainer>svg.dough {
-    -webkit-filter: drop-shadow( 5px -5px 2px #7EBA8C );
-            filter: drop-shadow( 5px -5px 2px #7EBA8C ); /* Same syntax as box-shadow */
-}
-
