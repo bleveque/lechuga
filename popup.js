@@ -93,7 +93,7 @@ var BrowserUtils = (function() {
 			}
 
 			lettucePush(procHistory, procs, historyLength);
-			
+
 			update.displayData(procs);
 
 			console.log(processes);
@@ -160,9 +160,6 @@ var BrowserUtils = (function() {
             proc.info.name = process["type"];
             callback && callback(proc);
         }
-        // if (process.tabs.length > 0) {
-        //     console.log("TYPE:", process.type, "TABS:", process.tabs);
-        // }
 
     }
 
