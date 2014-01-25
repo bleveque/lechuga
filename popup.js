@@ -15,6 +15,7 @@ var Popup = (function() {
 		console.log(chrome.browsingData);
 		console.log(chrome.processes);
 		setUpListeners();
+		update.setup();
 	}
 
 	function lettucePush(array, newElt, maxLength) {
