@@ -1,8 +1,8 @@
 var update = (function() {
 
 //Width and height
-var width = 500;
-var height = 1000;
+var width = 300;
+var height = 300;
 var radius = Math.min(width, height) / 2;
 var color = d3.scale.category20();
 var cpus;
@@ -27,8 +27,8 @@ function setup() {
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
     arc = d3.svg.arc()
-        .innerRadius(radius - 80)
-        .outerRadius(radius - 10);
+        .innerRadius(radius - 50)
+        .outerRadius(radius);
 
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
@@ -59,8 +59,8 @@ function displayData(jsonData) {
 
 
     arc = d3.svg.arc()
-        .innerRadius(radius - 80)
-        .outerRadius(radius - 10);
+        .innerRadius(radius - 50)
+        .outerRadius(radius);
 
 
     path = svg.datum(cpus).selectAll("path")
