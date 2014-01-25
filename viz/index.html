@@ -6,7 +6,7 @@
         <script type="text/javascript" src="d3/d3.min.js"></script>
     </head>
 
-    <style type="text/css">
+    <!--<style type="text/css">
         
             div.bar {
                 display: inline-block;
@@ -15,13 +15,13 @@
                 background-color: teal;
             }
         
-    </style>
+    </style>-->
 
     <body>
 
     <script type="text/javascript">
 
-    var dataset = [];                        //Initialize empty array
+    /*var dataset = [];                        //Initialize empty array
             for (var i = 0; i < 50; i++) {           //Loop 25 times
                 var newNumber = Math.random() * 30;  //New random number (0-30)
                 dataset = dataset.concat(newNumber); //Add new number to array
@@ -34,8 +34,8 @@
                 .style("height", function(d) {
                     var barHeight = d * 5;  //Scale up by factor of 5
                     return barHeight + "px";
-                });
-/*
+                });*/
+
     var width = 960,
         height = 500,
         radius = Math.min(width, height) / 2;
@@ -49,7 +49,7 @@
 
     var pie = d3.layout.pie()
         .sort(null)
-        .value(function(d) { return d.population; });
+        .value(function(d) { return d.memUsage; });
 
     var svg = d3.select("body").append("svg")
         .attr("width", width)
@@ -60,7 +60,7 @@
     d3.csv("data.csv", function(error, data) {
 
       data.forEach(function(d) {
-        d.population = +d.population;
+        d.memUsage = +d.memUsage;
       });
 
       var g = svg.selectAll(".arc")
@@ -70,14 +70,14 @@
 
       g.append("path")
           .attr("d", arc)
-          .style("fill", function(d) { return color(d.data.age); });
+          .style("fill", function(d) { return color(d.data.procName); });
 
       g.append("text")
           .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
           .attr("dy", ".35em")
           .style("text-anchor", "middle")
-          .text(function(d) { return d.data.age; });
+          .text(function(d) { return d.data.procName; });
 
-    });*/
+    });
 
 </script>
