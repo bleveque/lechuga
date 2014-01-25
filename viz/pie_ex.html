@@ -45,7 +45,6 @@ d3.csv("data.csv", function(error, data) {
       .data(pie(data))
     .enter().append("g")
       .attr("class", "arc")
-      .attr("isClicked","false")
       .on("click",function(d) {
                      svg.selectAll(".arc")
                         .transition().duration(2000)

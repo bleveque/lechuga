@@ -84,6 +84,8 @@ var Popup = (function() {
 
 			lettucePush(procHistory, procs, historyLength);
 
+			update.displayData(procs);
+
 			console.log(processes);
 			console.log(procs);
 
@@ -155,6 +157,7 @@ var Popup = (function() {
 		getNetworkInfo: getNetworkInfo,
 		getCpuInfo: getCpuInfo,
 		getProcessHistory: getProcessHistory
+
 	}
 
 })();
