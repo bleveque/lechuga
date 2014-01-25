@@ -1,0 +1,32 @@
+[{
+	"id": 0,
+	"network": 0,
+	"cpu": 1.38,
+	"info": {
+		"type": "browser"
+	}
+}, {
+	"id": 1,
+	"network": 0,
+	"cpu": 0.2,
+	"info": {
+		"type": "gpu"
+	}
+}, {
+	"id": 60,
+	"network": 2117,
+	"cpu": 0.6,
+	"info": {
+		"type": "tab",
+		"url": "http://www.twitter.com/"
+	}
+}, {
+	"id": 71,
+	"network": 2147,
+	"cpu": 0.5,
+	"info": {
+		"type": "tab",
+		"url": "http://www.facebook.com/"
+	}
+}
+]
