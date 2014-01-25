@@ -42,6 +42,11 @@ function setup() {
         .data(vizPie(cpus))
         .enter().append("g")
         .attr("class", "arc");
+
+    g.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Loading...");
     
 }
 function updateData(jsonData) {
@@ -53,7 +58,6 @@ function updateData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
-    console.log("cpus!!!!!!!!" + cpus)
 
 }
 /**
@@ -133,6 +137,7 @@ function createProcessMenu(id, processList, container) {
 }
 
 function displayData(jsonData) {
+
     if(!shouldUpdate) {
         return;
     }
@@ -144,16 +149,6 @@ function displayData(jsonData) {
     //     .append("g")
     //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
-    // arc = d3.svg.arc()
-    //     .innerRadius(radius - 80)
-    //     .outerRadius(radius - 10);
-
-    // g = svg.selectAll(".arc")
-    //     .data(vizPie(lastData))
-    //     .enter().append("g")
-    //     .attr("class", "arc");
-
-    // g.append("path").attr("d", arc);
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
@@ -170,8 +165,8 @@ function displayData(jsonData) {
         return;
     }
 
-    // console.log("cpus" + cpus)
-
+    $('#annulusContainer').empty(); // Clear
+    $('#loading').empty(); // Clear
 
     // For finding maxes
     var dummyCPUS = cpus.slice(0);
@@ -203,15 +198,26 @@ function displayData(jsonData) {
 
                     if (jsonData[item].info.title.length >= 10) {
                         var url = jsonData[item].info.url
-                        title = url.match(/\.{1}\w+\.{1}/g)
+                        title = url.match(/[^w]\w+\.{1}/g)
                         
                         if (title == null) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
                         else {
+                            var matchNum = 0;
+                            if (title[matchNum].match(/www/g)) {
+                                matchNum += 1
+                            }
+                            if (title[matchNum][0].match(/\w/g)){
+                                // first char is alpha, so slice from there
+                                finalTitle = title[matchNum].slice(0,-1);
+                                names.push(finalTitle);
+                            }
+                            else {
+                                finalTitle = title[matchNum].slice(1,-1);
+                                names.push(finalTitle);
+                            }
                             
-                            finalTitle = title[0].slice(1,-2);
-                            names.push(finalTitle);
                         }
                         
                     }
@@ -247,10 +253,8 @@ function displayData(jsonData) {
     g = svg.selectAll(".arc")
         .data(vizPie(cpus))
         .enter().append("g")
-        .attr("class", "arc");
-        // .on('click', function(evt) {
-        //     console.log(this);
-        // });
+        .attr("class", "arc")
+        .style("stroke-width", 3);
 
     // Draws and colors
     g.append("path")
