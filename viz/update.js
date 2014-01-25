@@ -268,10 +268,12 @@ function displayData(jsonData) {
     namesCPU = []
     namesMem = []
 
+    var titleThreshold = .07;
+
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
-            if (maxMemVals.indexOf(jsonData[item].memory) === -1) {
+            if ((jsonData[item].memory / totalMem) < titleThreshold) {
                 // Not one of the bigger processes w.r.t memory, so set its title to a blank string
                 namesMem.push("");
             } else {
@@ -310,7 +312,7 @@ function displayData(jsonData) {
                     namesMem.push(jsonData[item].info.type);
                 }
             }
-            if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
+            if ((jsonData[item].cpu / totalCPU) < titleThreshold) {
                 // Not one of the bigger processes w.r.t. cpu, so set its title to a blank string
                 namesCPU.push("");
                 continue;
