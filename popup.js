@@ -76,11 +76,8 @@ var Popup = (function() {
 			procs.length = 0; // clear procs array
 			for(id in processes) {
 				if(processes.hasOwnProperty(id)) {
-					procs.push({
-						id: id,
-						network: processes[id].network,
-						cpu: processes[id].cpu,
-						info: get_proc_info(processes[id])
+					get_proc_info(processes[id], function(info) {
+						procs.push(info);
 					});
 				}
 			}
@@ -135,13 +132,13 @@ var Popup = (function() {
                 function(tab) {
                     info["title"] = tab.title;
                     info["url"] = tab.url;
-                    callback(info);
+                    callback && callback(info);
                 });
         }
         else {
             // Not a tab
             info["name"] = process["type"];
-            callback(info);
+            callback && callback(info);
         }
         // if (process.tabs.length > 0) {
         //     console.log("TYPE:", process.type, "TABS:", process.tabs);
