@@ -7,7 +7,7 @@
 	float: left;
 	height: 80%;
 	position: absolute;
-	top: 10%;
+	top: 0%;
 	width: 40%;
 }
 
@@ -37,6 +37,11 @@ body {
 	position: absolute;
 	top: 65px;
 	width: 96%;
+}
+
+#filters {
+	position: absolute;
+	top: -50px;
 }
 
 #lettuceWrap {
