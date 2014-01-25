@@ -55,6 +55,8 @@ function displayMemData(jsonData) {
         }
     }
 
+    console.log("INHERE");
+
     var total = 0;  //Variable to hold your total
 
     for(var i=0, len=memories.length; i<len; i++){
@@ -66,9 +68,7 @@ function displayMemData(jsonData) {
     }
 
     $('#memoryContainer').empty(); // Clear
-    $('#loading').empty(); // Clear
-
-
+    // $('#loading').empty(); // Clear
 
     console.log("mems" + memories)
 
@@ -142,7 +142,6 @@ function displayMemData(jsonData) {
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
 
     arc = d3.svg.arc()
         .innerRadius(radius - 50)

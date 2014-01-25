@@ -28,7 +28,6 @@ function setup() {
     console.log(cpus);
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
-        //.attr("style", 'width:'+width+";height:"+height+";")
         .attr("height", height)
         .attr("width", width)
         .append("g")
@@ -143,12 +142,6 @@ function displayData(jsonData) {
     }
     $('#annulusContainer').empty(); // Clear
 
-    // svg = d3.select("#annulusContainer").append("svg")
-    //     .attr("width", width)
-    //     .attr("height", height)
-    //     .append("g")
-    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
@@ -180,8 +173,6 @@ function displayData(jsonData) {
             dummyCPUS.splice(index, 1);
         }
     }
-
-    // lastData = cpus;
 
     names = []
     for (item in jsonData) {
