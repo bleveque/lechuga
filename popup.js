@@ -8,7 +8,7 @@ var Popup = (function() {
         BrowserUtils.registerCallback(update.displayData);
 		// BrowserUtils.setUpListeners();
 		update.setup();
-		updateMem.setupMem();
+		// updateMem.setupMem();
 	}
 })();
 

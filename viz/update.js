@@ -1,28 +1,36 @@
 var update = (function() {
 
 //Width and height
-var width = 300;
-var height = 300;
-var radius = Math.min(width, height) / 2;
-var color = d3.scale.category20();
-var cpus;
-var arc;
-var svg;
-var g;
-var lastData;
-var path;
-var vizPie = d3.layout.pie()
-    .sort(null)
-    .value(function(d) { return d; });
+var width = '300',
+    height = '300',
+    radius = Math.min(width, height) / 2,
+    color = d3.scale.category20(),
+    cpus,
+    arc,
+    svg,
+    g,
+    lastData,
+    shouldUpdate = true,
+    path,
+    vizPie = d3.layout.pie()
+                .sort(null)
+                .value(function(d) { return d; });
 
 
 function setup() {
-    cpus = BrowserUtils.getProcesses();
+    var jsonData = BrowserUtils.getProcesses();
     cpus = [];
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
+    }
+    console.log(cpus);
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
-        .attr("width", width)
+        //.attr("style", 'width:'+width+";height:"+height+";")
         .attr("height", height)
+        .attr("width", width)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
@@ -52,7 +60,94 @@ function updateData(jsonData) {
     }
 
 }
+/**
+ * Creates and returns a handler to close a tab
+ * @param id    the tabId
+ * @return      handler to close the relevant tab
+ */
+function closeTab(id) {
+    return function(evt) {
+        chrome.tabs.remove(id || someTabIds.pop());
+    }
+}
+
+/**
+ * Returns the first element in an array matching the
+ * input property/value pair
+ * @param array      the array in question
+ * @param prop       the property name
+ * @param val        the value of the property to match
+ */
+function getArrayEltByProp(array, prop, val) {
+    var i;
+    for(i=0;i<array.length;i++) {
+        if(array[i][prop] === val) {
+            return array[i];
+        }
+    }
+    return null;
+}
+
+/**
+ * Creates and returns a click handler that creates
+ * a menu with additional information about the selected
+ * process
+ * @param id             the id of the selected process
+ * @param processList    the list of all processes
+ * @return               hover handler
+ */
+function createProcessMenu(id, processList, container) {
+    return function(evt) {
+        shouldUpdate = false;
+        evt.stopPropagation();
+        $('#procMenu').remove();
+        $('#lettuceWrap').on('click', function() {
+            $('#procMenu').remove();
+            shouldUpdate = true;
+        });
+        
+        var left = evt.offsetX,
+            top = evt.offsetY,
+            menu = $(document.createElement('div')),
+            removeTabButton,
+            process;
+        container = container || $('#lettuceWrap');
+        menu.attr('id', 'procMenu');
+        menu.css({
+            position: 'absolute',
+            left: left,
+            top: top,
+            background: 'rgba(255,100,0,0.5)'
+        })
+        container.append(menu);
+        process = getArrayEltByProp(processList, 'id', id);
+        if(process && process.info && process.info.type === 'tab') {
+            removeTabButton = $(document.createElement('button'));
+            removeTabButton.attr({
+                type: 'button'
+            });
+            removeTabButton.text('close tab');
+            removeTabButton.on('click', function(evt) {
+                shouldUpdate = true;
+                closeTab(process.info.tabid)(evt);
+            });
+            menu.append(removeTabButton);
+        }
+    }
+}
+
 function displayData(jsonData) {
+
+    if(!shouldUpdate) {
+        return;
+    }
+    $('#annulusContainer').empty(); // Clear
+
+    // svg = d3.select("#annulusContainer").append("svg")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //     .append("g")
+    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
     cpus = [];
     for (item in jsonData) {
@@ -66,7 +161,7 @@ function displayData(jsonData) {
     for(var i=0, len=cpus.length; i<len; i++){
         total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
     }
-    if (total == 0) {
+    if (total === 0) {
         return;
     }
 
@@ -92,12 +187,12 @@ function displayData(jsonData) {
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             // Determine title to display
+
             if (maxCPUVals.indexOf(jsonData[item].cpu) === -1) {
                 // Not one of the bigger processes, so set its title to a blank string
-                console.log("one: " + jsonData[item].cpu);
+                // console.log("one: " + jsonData[item].cpu);
                 names.push("");
-            }
-            else{
+            } else {
                 // one of max vals, get real name
                 if (jsonData[item].info.type == "tab") {
 
@@ -137,7 +232,6 @@ function displayData(jsonData) {
         }
     }
 
-
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
@@ -166,6 +260,11 @@ function displayData(jsonData) {
     g.append("path")
       .attr("d", arc)
       .style("fill", function(d, i) { return color(i); });
+
+    svg.selectAll('path').each(function(d, i) {
+        $(this).attr('id', jsonData[i].id)
+        $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
+    });
 
     g.append("text")
       .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
