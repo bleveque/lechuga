@@ -2,22 +2,28 @@ var Popup = (function() {
 
 	window.onload = load;
 
-	var historyLength = 10;
-
-	var procs = [],
-		procHistory = [];
-
-	var networkStats = {},
-		cpuStats = {},
-		memoryStats = {};
-
 	function load() {
 		console.log(chrome.browsingData);
 		console.log(chrome.processes);
-		setUpListeners();
+        BrowserUtils.registerCallback(update.displayData);
+		BrowserUtils.setUpListeners();
 		update.setup();
 	}
+})();
 
+var BrowserUtils = (function() {
+	var historyLength = 10,
+		procs = [], // last updated process list
+		procHistory = [], // history of historyLength previous process lists
+		networkStats = {},
+		cpuStats = {},
+		memoryStats = {},
+        callbacks = [];
+
+	/**
+	 * Pushes a new element to an array of max length maxLength
+	 * If maxLength would be exceeded, removes the first element before pushing
+	 */
 	function lettucePush(array, newElt, maxLength) {
 		maxLength = maxLength || 10;
 		if(array.length >= maxLength) {
@@ -61,16 +67,41 @@ var Popup = (function() {
 		return infoArray;
 	}
 
+	/**
+	 * Get array of network information using extractInfoArray
+	 */
 	function getNetworkInfo(processes) {
 		return extractInfoArray(processes, 'network');
 	}
 
+	/**
+	 * Get array of cpu information using extractInfoArray
+	 */
 	function getCpuInfo(processes) {
 		return extractInfoArray(processes, 'cpu');
 	}
 
+    /**
+     * Adds a callback to the callbacks list. These callbacks are invoked with
+     * data from the chrome.processes api.
+     */
+    function registerCallback(callback) {
+        callbacks.push(callback)
+    }
+
+    /**
+     * Wrapper function that invokes each registered callback with the proc data.
+     */
+    function sendProcData(data) {
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i](data);
+        }
+    }
+
 	/**
-	 * Set up chrome.processes listeners
+	 * Set up chrome.processes listeners.
+     * This adds a listener to chrome.processes, which retrieves information on
+     * all chrome processes, and sends formatted data to all registered callbacks.
 	 */
 	function setUpListeners() {
 		chrome.processes.onUpdatedWithMemory.addListener(function(processes) {
@@ -84,42 +115,44 @@ var Popup = (function() {
 			}
 
 			lettucePush(procHistory, procs, historyLength);
-			
-			update.displayData(procs);
 
-			console.log(processes);
-			console.log(procs);
+            sendProcData(procs);
+			// update.displayData(procs);
 
-			var i, id, text, processDiv;
-			for(id in processes) {
-				if(processes.hasOwnProperty(id)) {
+			// console.log(processes);
 
-					networkStats[id] = processes[id].network;
-					cpuStats[id] = processes[id].cpu;
-					if(processes[id].network > 0) {
-						console.log(processes[id]);//"ID: " + process.osProcessId+", ")
-					}
-				}
-			}
-			for(id in networkStats) {
-				if(networkStats.hasOwnProperty(id)){
-					if($('#networkProcess_'+id).length > 0) {
-						text = $('#networkProcess_'+id).text();
-						$('#networkProcess_'+id).text(text + " | "+networkStats[id]);
+			// console.log(procs);
 
-						text = $('#cpuProcess_'+id).text();
-						$('#cpuProcess_'+id).text(text + " | "+cpuStats[id].toFixed(3));
-					} else {
-						processDiv = $(document.createElement('div')).attr('id', 'networkProcess_'+id);
-						$('#networkStats').append(processDiv);
-						processDiv.text(id + " :: " + networkStats[id]);
+			// var i, id, text, processDiv;
+			// for(id in processes) {
+			// 	if(processes.hasOwnProperty(id)) {
 
-						processDiv = $(document.createElement('div')).attr('id', 'cpuProcess_'+id);
-						$('#cpuStats').append(processDiv);
-						processDiv.text(id + " :: " + cpuStats[id].toFixed(3));
-					}
-				}
-			}
+			// 		networkStats[id] = processes[id].network;
+			// 		cpuStats[id] = processes[id].cpu;
+			// 		if(processes[id].network > 0) {
+			// 			console.log(processes[id]);//"ID: " + process.osProcessId+", ")
+			// 		}
+			// 	}
+			// }
+			// for(id in networkStats) {
+			// 	if(networkStats.hasOwnProperty(id)){
+			// 		if($('#networkProcess_'+id).length > 0) {
+			// 			text = $('#networkProcess_'+id).text();
+			// 			$('#networkProcess_'+id).text(text + " | "+networkStats[id]);
+
+			// 			text = $('#cpuProcess_'+id).text();
+			// 			$('#cpuProcess_'+id).text(text + " | "+cpuStats[id].toFixed(3));
+			// 		} else {
+			// 			processDiv = $(document.createElement('div')).attr('id', 'networkProcess_'+id);
+			// 			$('#networkStats').append(processDiv);
+			// 			processDiv.text(id + " :: " + networkStats[id]);
+
+			// 			processDiv = $(document.createElement('div')).attr('id', 'cpuProcess_'+id);
+			// 			$('#cpuStats').append(processDiv);
+			// 			processDiv.text(id + " :: " + cpuStats[id].toFixed(3));
+			// 		}
+			// 	}
+			// }
 		});
 	}
 
@@ -133,7 +166,7 @@ var Popup = (function() {
 
         if (process.tabs.length === 1) {
             // This is a tab process
-            proc.info.name = "tab";
+            proc.info.type = "tab";
 
             var tabid = process.tabs[0];
             proc.info.tabid = tabid;
@@ -147,12 +180,9 @@ var Popup = (function() {
         }
         else {
             // Not a tab
-            proc.info.name = process["type"];
+            proc.info.type = process["type"];
             callback && callback(proc);
         }
-        // if (process.tabs.length > 0) {
-        //     console.log("TYPE:", process.type, "TABS:", process.tabs);
-        // }
 
     }
 
@@ -160,8 +190,8 @@ var Popup = (function() {
 		getProcesses: getProcesses,
 		getNetworkInfo: getNetworkInfo,
 		getCpuInfo: getCpuInfo,
-		getProcessHistory: getProcessHistory
-
+		getProcessHistory: getProcessHistory,
+		setUpListeners: setUpListeners,
+        registerCallback: registerCallback
 	}
-
 })();
