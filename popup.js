@@ -76,14 +76,16 @@ var Popup = (function() {
 			procs.length = 0; // clear procs array
 			for(id in processes) {
 				if(processes.hasOwnProperty(id)) {
-					get_proc_info(processes[id], function(info) {
-						procs.push(info);
+					get_proc_info(processes[id], function(proc) {
+						procs.push(proc);
 					});
 				}
 			}
+
 			lettucePush(procHistory, procs, historyLength);
+			
 			console.log(processes);
-			console.log(getNetworkInfo(procs));
+			console.log(procs);
 
 			var i, id, text, processDiv;
 			for(id in processes) {
@@ -119,30 +121,31 @@ var Popup = (function() {
 	}
 
     function get_proc_info(process, callback) {
-        var info = {
+        var proc = {
             id: process.id,
             network: process.network,
             cpu: process.cpu,
+            info: {}
         };
 
         if (process.tabs.length === 1) {
             // This is a tab process
-            info["name"] = "tab";
+            proc.info.name = "tab";
 
             var tabid = process.tabs[0];
-            info["tabid"] = tabid;
+            proc.info.tabid = tabid;
 
             chrome.tabs.get(tabid,
                 function(tab) {
-                    info["title"] = tab.title;
-                    info["url"] = tab.url;
-                    callback && callback(info);
+                    proc.info.title = tab.title;
+                    proc.info.url = tab.url;
+                    callback && callback(proc);
                 });
         }
         else {
             // Not a tab
-            info["name"] = process["type"];
-            callback && callback(info);
+            proc.info.name = process["type"];
+            callback && callback(proc);
         }
         // if (process.tabs.length > 0) {
         //     console.log("TYPE:", process.type, "TABS:", process.tabs);
