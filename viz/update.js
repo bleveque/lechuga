@@ -20,10 +20,18 @@ var width = '300',
                 .sort(null)
                 .value(function(d) { return d; });
 
+var svgCPU,
+    svgMem,
+    arcCPU,
+    arcMem,
+    gCPU,
+    gMem;
+
+
 /**
  * Initial setup for d3 elements
  */
-function setup() {
+function setup(jsonData) {
     var jsonData = BrowserUtils.getProcesses();
     cpus = [];
     mems = [];
@@ -33,7 +41,7 @@ function setup() {
             mems.push(jsonData[item].memory);
         }
     }
-
+    console.log("INSIDE SETUP:", mems);
     //Create SVG element
     svgCPU = d3.select("#cpuContainer").append("svg")
         .attr({
@@ -53,7 +61,7 @@ function setup() {
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
         .attr("class","svgMem")
 
-    
+
     arcCPU = d3.svg.arc()
         .innerRadius(radius - 50)
         .outerRadius(radius);
@@ -64,19 +72,19 @@ function setup() {
 
     gCPU = svgCPU.selectAll(".arc")
         .data(vizPieCPU(cpus))
-        .enter().append("g")
-        .attr("class", "arc");
+        .enter().append("path");
+        // .attr("class", "arc");
 
     gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
-        .enter().append("g")
-        .attr("class", "arc");
+        .enter().append("path");
+        // .attr("class", "arc");
 
     // // Add loading text.
-    // gCPU.append("text")
-    //     .style("text-anchor", "middle")
-    //     .style("font-size","24px")
-    //     .text("Loading...");
+    gCPU.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","24px")
+        .text("Loading...");
 }
 
 /**
@@ -215,8 +223,8 @@ function displayData(jsonData) {
         }
     }
 
-    var totalCPU = 0; 
-    var totalMem = 0; 
+    var totalCPU = 0;
+    var totalMem = 0;
 
     for(var i=0, len=cpus.length; i<len; i++){
         totalCPU += cpus[i];  //Iterate over your first array and then grab the second element add the values up
@@ -434,39 +442,6 @@ function displayData(jsonData) {
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("Memory Usage");
-
-   }
-
-   function getCPUData(jsonData) {
-        var cpus = [];
-        for (item in jsonData) {
-            if(jsonData.hasOwnProperty(item)) {
-                cpus.push(jsonData[item].cpu);
-            }
-        }
-
-        var total = 0;  //Variable to hold your total
-
-        for(var i=0, len=cpus.length; i<len; i++){
-            total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
-        }
-        if (total === 0) {
-            return;
-        }
-
-        var dummyCPUS = cpus.slice(0);
-
-        maxCPUVals = [];
-        for(var i=0;i<4;i++) {
-            var maxVal = Math.max.apply(Math, dummyCPUS);
-            maxCPUVals.push(maxVal);
-            var index = dummyCPUS.indexOf(maxVal);
-            if (index > -1) {
-                dummyCPUS.splice(index, 1);
-            }
-        }
-
-        return cpus;
 
    }
 
