@@ -16,27 +16,15 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-    // d3.select("#lettuceWrap").selectAll("p")
-    //         .data(cpus)
-    //         .enter()
-    //         .append("p")
-    //         .attr("class", "bar")
-    //         .attr("x", function(d, i) {
-    //             return i * (width / dataset.length);
-    //         })
-    //         .style("height", function(d) {
-    //             var barHeight = d + 10;
-    //             return barHeight + "px";
-    //         });
+    cpus = []
+
 
     //Create SVG element
-    svg = d3.select("#lettuceWrap").append("svg")
+    svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
         .attr("height", height)
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-
 
     arc = d3.svg.arc()
         .innerRadius(radius - 80)
@@ -52,58 +40,45 @@ function setup() {
 }
 
 function displayData(jsonData) {
+    $('#annulusContainer').empty(); // Clear
+    
+    // Build dataset from JSON object
     cpus = [];
-
     for (item in jsonData) {
-      cpus.push(jsonData[item].cpu);
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
     }
 
-    // d3.select("#lettuceWrap").selectAll("p")
-    //     .data(cpus)
-    //     .attr("class", "bar")
-    //     .transition()
-    //     .duration(1000)
-    //     .style("height", function(d) {
-    //         var barHeight = d * 10;
-    //         return barHeight + "px";
-    //     });
+    // Define svg canvas
+    svg = d3.select("#annulusContainer").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
-    // Creates new arcs based on new data
-    vizPie = d3.layout.pie()
-               .sort(null)
-               .value(function(d) { return d; });
 
-    g.data(vizPie(cpus))
-     .attr("class", "arc")
-     .transition()
-     .duration(1000);
+    arc = d3.svg.arc()
+        .innerRadius(radius - 80)
+        .outerRadius(radius - 10);
 
-    g.selectAll("path")
-      .attr("d", arc)
-      .style("fill", function(d) { return color(d); });
 
     path = svg.datum(cpus).selectAll("path")
                           .data(vizPie)
-                          .style("fill", function(d, i) { return color(i); })
                           .attr("d", arc)
-                          // .attr("fill", function(d, i) { return color(i); });
 
+    // Defines arcs
+    g = svg.selectAll(".arc")
+        .data(vizPie(cpus))
+        .enter().append("g")
+        .attr("class", "arc");
 
-    // path.attr("d", arc)
-    // path = path.data(vizPie);
-
-    // path.transition().duration(750).attrTween("d", arcTween); // redraw the arcs
+    // Draws and colors
+    g.append("path")
+      .attr("d", arc)
+      .style("fill", function(d, i) { return color(i); });
 
    }
-// During the transition, _current is updated in-place by d3.interpolate.
-function arcTween(a) {
-  var i = d3.interpolate(this._current, a);
-  this._current = i(0);
-  return function(t) {
-    return arc(i(t));
-  };
-}
-
 
 return {displayData: displayData,
         setup:  setup}
