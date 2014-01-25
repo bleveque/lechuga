@@ -25,10 +25,6 @@ var Popup = (function() {
 		array.push(newElt);
 	}
 
-	function get_proc_info(process) {
-		return {};
-	}
-
 	/**
 	 * Returns array of pre-processed processes
 	 * Each process object has properties for id, network, cpu, and info
@@ -95,6 +91,7 @@ var Popup = (function() {
 			var i, id, text, processDiv;
 			for(id in processes) {
 				if(processes.hasOwnProperty(id)) {
+
 					networkStats[id] = processes[id].network;
 					cpuStats[id] = processes[id].cpu;
 					if(processes[id].network > 0) {
@@ -123,6 +120,35 @@ var Popup = (function() {
 			}
 		});
 	}
+
+    function get_proc_info(process, callback) {
+        var info = {};
+
+        if (process.tabs.length === 1) {
+            // This is a tab process
+            info["name"] = "tab";
+
+            var tabid = process.tabs[0];
+            info["tabid"] = tabid;
+
+            chrome.tabs.get(tabid,
+                function(tab) {
+                    info["title"] = tab.title;
+                    info["url"] = tab.url;
+                    callback(info);
+                });
+        }
+        else {
+            // Not a tab
+            info["name"] = process["type"];
+            callback(info);
+        }
+        // if (process.tabs.length > 0) {
+        //     console.log("TYPE:", process.type, "TABS:", process.tabs);
+        // }
+
+        return info;
+    }
 
 	return {
 		getProcesses: getProcesses,
