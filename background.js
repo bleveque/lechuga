@@ -1,7 +1,7 @@
 var BrowserUtils = (function() {
 	var historyLength = 10,
 		procs = [], // last updated process list
-		procHistory = [], // history of historyLength previous process lists
+		procHistory = {}, // history of historyLength previous process lists
 		networkStats = {},
 		cpuStats = {},
 		memoryStats = {},
@@ -14,96 +14,26 @@ var BrowserUtils = (function() {
 	 */
 	function lettucePush(array, newElt, maxLength) {
 		maxLength = maxLength || 10;
+        // console.log("ARRAY:", array)
+        var n = (array[0] && array[0].length) || 0;
 		if(array.length >= maxLength) {
-			array.splice(0, array.length - maxLength + 1);
+			array.splice(0, n - maxLength + 1);
 		}
-		array.push(newElt);
+
+        for (var i=0; i < newElt.length; i++) {
+            var proc = newElt[i];
+            var procName = proc.info.type === 'tab' ? proc.info.title : proc.info.type;
+            if (!array[procName]) {
+                array[procName] = [];
+                for(var j=0; j<=n; j++) array[procName][j] = 0;
+            }
+            // console.log("ARRAY:", procName, array[]);
+            array[procName].push(proc.cpu)
+        }
+        console.log(array);
+		// array.push(newElt);
 	}
 
-    function convert(bigArray, prop) {
-        var snapshot,
-            proc,
-            i, j,
-            ret = {},
-            name,
-            k,
-            longestArrayLength = 0;
-
-
-        for(i=0;i<bigArray.length;i++) {
-            snapshot = bigArray[i];
-            for(j=0;j<snapshot.length;j++) {
-                proc = snapshot[j];
-                name = proc.info.type === 'tab' ? proc.info.title : proc.info.type;
-
-                // if (name.indexOf("NFL") != -1) {
-                //     console.log(proc[prop], i, snapshot[3])
-                // }
-
-                if(!ret[name]) {
-                    ret[name] = [];
-                    for(k=0;k<i-1;k++) {
-                        ret[name].push(0);
-                    }
-                }
-
-                ret[name].push(proc[prop]);
-            }
-        }
-        // console.log(ret);
-        return ret;
-    }
-
-    function formatProcHistory(procHistory) {
-        console.log(procHistory);
-        var newProcHistory = {},
-            row,
-            col,
-            proc,
-            procName,
-            procz;
-
-        // Initialize newProcHistory attributes with zeros
-        for (row = 0; row < procHistory.length; row++) {
-            procz = procHistory[row];
-            for (col = 0; col < procz.length; col++) {
-                proc = procz[col];
-                procName = proc.info.title || proc.info.type;
-                if (!(procName in newProcHistory)) {
-                    console.log(col, row);
-                    newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
-                }
-                newProcHistory[procName] += proc.cpu;
-                if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
-                    console.log(procName, row)
-                }
-                // console.log(procName, row, newProcHistory[procName][row]);
-            }
-            // console.log(newProcHistory, row);
-        }
-
-        // var newProcHistory = {};
-        // for (var row = 0; row < procHistory.length; row++) {
-        //     procs = procHistory[row];
-        //     console.log(procs.length, procs);
-        //     for (var col = 0; col < procs.length; col++) {
-        //         var proc = procs[col];
-        //         console.log(proc.info);
-        //         var procName = proc.info.title || proc.info.type;
-
-        //         if (newProcHistory.hasOwnProperty(procName)) {
-        //             newProcHistory[procName].push(proc.cpu);
-        //         }
-        //         else {
-        //             newProcHistory[procName] = [proc.cpu];
-        //         }
-        //     }
-        // }
-        console.log("NEWPROCHISTORY", newProcHistory[3]);
-        // console.log("NEWPROCHISTORY:", newProcHistory['▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube']);
-        return newProcHistory;
-
-    }
 
 	/**
 	 * Returns array of pre-processed processes
@@ -192,10 +122,10 @@ var BrowserUtils = (function() {
 
             get_proc_info(processesArray, function() {
     			lettucePush(procHistory, procs, historyLength);
-                convert(procHistory, "cpu");
+                // convert(procHistory, "cpu");
                 // formatProcHistory(procHistory);
                 sendProcData(procs);
-    			// update.displayData(procs);
+    			// update1.displayData(procHistory);
             });
 
 		});
