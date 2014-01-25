@@ -30,7 +30,6 @@ var BrowserUtils = (function() {
             // console.log("ARRAY:", procName, array[]);
             array[procName].push(proc.cpu)
         }
-        console.log(array);
 		// array.push(newElt);
 	}
 

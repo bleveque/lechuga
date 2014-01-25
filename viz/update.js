@@ -37,29 +37,29 @@ function setup() {
 
     g.append("path").attr("d", arc);
 
-    lastData = cpus;
+    // lastData = cpus;
     
 }
 
 function displayData(jsonData) {
     $('#annulusContainer').empty(); // Clear
 
-    svg = d3.select("#annulusContainer").append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+    // svg = d3.select("#annulusContainer").append("svg")
+    //     .attr("width", width)
+    //     .attr("height", height)
+    //     .append("g")
+    //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
-    arc = d3.svg.arc()
-        .innerRadius(radius - 80)
-        .outerRadius(radius - 10);
+    // arc = d3.svg.arc()
+    //     .innerRadius(radius - 80)
+    //     .outerRadius(radius - 10);
 
-    g = svg.selectAll(".arc")
-        .data(vizPie(lastData))
-        .enter().append("g")
-        .attr("class", "arc");
+    // g = svg.selectAll(".arc")
+    //     .data(vizPie(lastData))
+    //     .enter().append("g")
+    //     .attr("class", "arc");
 
-    g.append("path").attr("d", arc);
+    // g.append("path").attr("d", arc);
     
     // Build dataset from JSON object
     cpus = [];
@@ -68,13 +68,35 @@ function displayData(jsonData) {
             cpus.push(jsonData[item].cpu);
         }
     }
-    lastData = cpus;
+    // lastData = cpus;
 
     names = []
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
-            if (jsonData[item].info.type = "tab") {
-                names.push(jsonData[item].info.title);
+            // Determine title to display
+            if (jsonData[item].info.type == "tab") {
+
+                if (jsonData[item].info.title.length >= 10) {
+                    var url = jsonData[item].info.url
+                    console.log(url)
+                    title = url.match(/\.{1}\w+\.{1}/g)
+                    
+                    console.log("title: " + title)
+
+                    if (title == null) {
+                        names.push(jsonData[item].info.title.slice(1,10))
+                    }
+                    else {
+                        
+                        finalTitle = title[0].slice(1,-2);
+                        console.log(finalTitle);
+                        names.push(finalTitle);
+                    }
+                    
+                }
+                else {
+                    names.push(jsonData[item].info.title);
+                }
             }
             else {
                 names.push(jsonData[item].info.type);
@@ -116,6 +138,7 @@ function displayData(jsonData) {
       .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
       .attr("dy", ".35em")
       .style("text-anchor", "middle")
+      .style("font-size","8px")
       .data(names)
       .text(function(d) { return d; });
 
