@@ -148,7 +148,7 @@ function createProcessMenu(id, processList, container) {
             position: 'absolute',
             left: left + 'px',
             top: top + 'px',
-            background: 'rgba(255,100,0,0.5)'
+            background: 'rgba(255,100,0,0.85)'
         });
         container.append(menu);
 
@@ -224,7 +224,7 @@ function convertMetric(input) {
         input /= 1024;
         reductions++;
     }
-    return input.toFixed(4) + units[reductions];
+    return input.toFixed(2) + units[reductions];
 }
 
 /**
