@@ -41,7 +41,6 @@ function setup(jsonData) {
             mems.push(jsonData[item].memory);
         }
     }
-    console.log("INSIDE SETUP:", mems);
     //Create SVG element
     svgCPU = d3.select("#cpuContainer").append("svg")
         .attr({
@@ -395,15 +394,16 @@ function displayData(jsonData) {
         .attr("class", "arc")
         .style("stroke-width", 4);
 
-    console.log(arcCPU);
     // Draws and colors
     gCPU.append("path")
       .attr("d", arcCPU)
+      .attr("class", "dough")
       .style("fill", function(d, i) { return color(i); });
 
     // Draws and colors
     gMem.append("path")
       .attr("d", arcMem)
+      .attr("class", "dough")
       .style("fill", function(d, i) { return color(i); });
 
     svgCPU.selectAll('path').each(function(d, i) {
