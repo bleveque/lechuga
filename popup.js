@@ -86,7 +86,6 @@ var BrowserUtils = (function() {
      */
     function registerCallback(callback) {
         callbacks.push(callback)
-        console.log("CALLBACKS", callbacks)
     }
 
     /**
@@ -166,7 +165,7 @@ var BrowserUtils = (function() {
 
         if (process.tabs.length === 1) {
             // This is a tab process
-            proc.info.name = "tab";
+            proc.info.type = "tab";
 
             var tabid = process.tabs[0];
             proc.info.tabid = tabid;
@@ -180,7 +179,7 @@ var BrowserUtils = (function() {
         }
         else {
             // Not a tab
-            proc.info.name = process["type"];
+            proc.info.type = process["type"];
             callback && callback(proc);
         }
 
