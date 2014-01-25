@@ -3,11 +3,10 @@
 	padding: 0px;
 }
 
-#annulusContainer {
+#cpuContainer {
 	float: left;
 	height: 80%;
 	position: absolute;
-	top: 0%;
 	width: 40%;
 }
 
@@ -55,7 +54,7 @@ body {
 	clear:both;
 }
 
-#memoryContainer {
+#memContainer {
 	float:right;
 }
 
