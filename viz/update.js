@@ -38,7 +38,7 @@ function setup() {
     g.append("path").attr("d", arc);
 
     // lastData = cpus;
-    
+
 }
 
 function displayData(jsonData) {
@@ -60,7 +60,7 @@ function displayData(jsonData) {
     //     .attr("class", "arc");
 
     // g.append("path").attr("d", arc);
-    
+
     // Build dataset from JSON object
     cpus = [];
     for (item in jsonData) {
@@ -78,21 +78,21 @@ function displayData(jsonData) {
 
                 if (jsonData[item].info.title.length >= 10) {
                     var url = jsonData[item].info.url
-                    console.log(url)
+                    // console.log(url)
                     title = url.match(/\.{1}\w+\.{1}/g)
-                    
-                    console.log("title: " + title)
+
+                    // console.log("title: " + title)
 
                     if (title == null) {
                         names.push(jsonData[item].info.title.slice(1,10))
                     }
                     else {
-                        
+
                         finalTitle = title[0].slice(1,-2);
-                        console.log(finalTitle);
+                        // console.log(finalTitle);
                         names.push(finalTitle);
                     }
-                    
+
                 }
                 else {
                     names.push(jsonData[item].info.title);
