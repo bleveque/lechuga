@@ -10,7 +10,9 @@
 
 	// permissions
 	"permissions": [
-		"browsingData"
+		"browsingData",
+		"processes",
+		"tabs"
 	],
 
 	"browser_action": {
