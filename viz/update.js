@@ -18,7 +18,6 @@ var vizPie = d3.layout.pie()
 function setup() {
     cpus = []
 
-
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
@@ -50,6 +49,20 @@ function displayData(jsonData) {
         }
     }
 
+    names = []
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            if (jsonData[item].info.type = "tab") {
+                names.push(jsonData[item].info.title);
+            }
+            else {
+                names.push(jsonData[item].info.type);
+            }
+        }
+    }
+
+    console.log()
+
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
@@ -77,6 +90,13 @@ function displayData(jsonData) {
     g.append("path")
       .attr("d", arc)
       .style("fill", function(d, i) { return color(i); });
+
+    g.append("text")
+      .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .data(names)
+      .text(function(d) { return d; });
 
    }
 
