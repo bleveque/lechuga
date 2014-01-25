@@ -63,7 +63,7 @@ var BrowserUtils = (function() {
                     console.log(col, row);
                     newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
                 }
-                newProcHistory[procName] += proc.cpu);
+                newProcHistory[procName] += proc.cpu;
                 if (procName === '▶ "THE NFL : A Bad Lip Reading" — A Bad Lip Reading of the NFL - YouTube') {
                     console.log(procName, row)
                 }
