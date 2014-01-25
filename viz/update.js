@@ -17,8 +17,8 @@ var vizPie = d3.layout.pie()
 
 
 function setup() {
-    cpus = []
-
+    cpus = BrowserUtils.getProcesses();
+    cpus = [];
     //Create SVG element
     svg = d3.select("#annulusContainer").append("svg")
         .attr("width", width)
@@ -34,13 +34,20 @@ function setup() {
         .data(vizPie(cpus))
         .enter().append("g")
         .attr("class", "arc");
-
-    // g.append("path").attr("d", arc);
-
-    // lastData = cpus;
     
 }
+function updateData(jsonData) {
+    // Build dataset from JSON object
+    jsonData = BrowserUtils.getProcesses();
+    cpus = [];
+    for (item in jsonData) {
+        if(jsonData.hasOwnProperty(item)) {
+            cpus.push(jsonData[item].cpu);
+        }
+    }
+    console.log("cpus!!!!!!!!" + cpus)
 
+}
 function displayData(jsonData) {
     $('#annulusContainer').empty(); // Clear
 
@@ -60,14 +67,24 @@ function displayData(jsonData) {
     //     .attr("class", "arc");
 
     // g.append("path").attr("d", arc);
-
-    // Build dataset from JSON object
     cpus = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
             cpus.push(jsonData[item].cpu);
         }
     }
+
+    var total = 0;  //Variable to hold your total
+
+    for(var i=0, len=cpus.length; i<len; i++){
+        total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+    }
+    if (total == 0) {
+        return;
+    }
+
+    console.log("cpus" + cpus)
+
 
     // For finding maxes
     var dummyCPUS = cpus.slice(0);
@@ -83,8 +100,6 @@ function displayData(jsonData) {
     }
 
     // lastData = cpus;
-
-    console.log("MAXVALS: " + maxCPUVals)
 
     names = []
     for (item in jsonData) {
@@ -169,6 +184,7 @@ function displayData(jsonData) {
    }
 
 return {displayData: displayData,
-        setup:  setup}
+        setup:  setup,
+        updateData: updateData}
 
 })();
