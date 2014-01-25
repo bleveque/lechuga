@@ -10,16 +10,12 @@
 
 	// permissions
 	"permissions": [
-		"processes",
-	]
+		"browsingData"
+	],
 
 	"browser_action": {
-		"default_icon": {
-			"19": "images/squirrel19.jpg",
-			"38": "images/squirrel38.jpg",
-			"64": "images/squirrel.jpg"
-		},
-		"default_title": "Lechuga",
+		"default_icon": "images/squirrel19.jpg",
+     	"default_title": "Lechuga",
 		"default_popup": "popup.html"
-	},
+	}
 }
