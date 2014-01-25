@@ -33,7 +33,7 @@ function setup() {
             mems.push(jsonData[item].memory);
         }
     }
-    
+
     //Create SVG element
     svgCPU = d3.select("#cpuContainer").append("svg")
         .attr({
@@ -62,12 +62,12 @@ function setup() {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-    gCPU = svgCPU.selectAll(".svgCPU .arc")
+    gCPU = svgCPU.selectAll(".arc")
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc");
 
-    gMem = svgMem.selectAll(".svgMem .arc")
+    gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc");
@@ -124,12 +124,17 @@ function createProcessMenu(id, processList, container) {
             $('#procMenu').remove();
             shouldUpdate = true;
         });
-        
-        var left = evt.offsetX,
-            top = evt.offsetY,
+        var left = evt.clientX,
+            top = evt.clientY,
             menu = $(document.createElement('div')),
+            nameDiv = $(document.createElement('div')),
+            memDiv = $(document.createElement('div')),
+            cpuDiv = $(document.createElement('div')),
             removeTabButton,
-            process;
+            process,
+            name,
+            mem,
+            cpu;
         container = container || $('#lettuceWrap');
         menu.attr('id', 'procMenu');
         menu.css({
@@ -140,6 +145,8 @@ function createProcessMenu(id, processList, container) {
         })
         container.append(menu);
         process = getArrayEltByProp(processList, 'id', id);
+        mem = process.memory;
+        cpu = process.cpu;
         if(process && process.info && process.info.type === 'tab') {
             removeTabButton = $(document.createElement('button'));
             removeTabButton.attr({
@@ -151,7 +158,17 @@ function createProcessMenu(id, processList, container) {
                 closeTab(process.info.tabid)(evt);
             });
             menu.append(removeTabButton);
+            name = process.info.title;
+        } else {
+            name = process.info.type;
         }
+        nameDiv.text(name);
+        memDiv.text(mem);
+        cpuDiv.text(cpu);
+        menu.append(nameDiv);
+        menu.append(memDiv);
+        menu.append(cpuDiv);
+
     }
 }
 
@@ -256,7 +273,7 @@ function displayData(jsonData) {
                     if (jsonData[item].info.title.length >= 10) {
                         var url = jsonData[item].info.url
                         title = url.match(/[^w]\w+\.{1}/g)
-                        
+
                         if (title == null) {
                             names.push(jsonData[item].info.title.slice(1,10))
                         }
@@ -274,9 +291,9 @@ function displayData(jsonData) {
                                 finalTitle = title[matchNum].slice(1,-1);
                                 names.push(finalTitle);
                             }
-                            
+
                         }
-                        
+
                     }
                     else {
                         names.push(jsonData[item].info.title);
@@ -313,23 +330,22 @@ function displayData(jsonData) {
         .innerRadius(radius - 50)
         .outerRadius(radius);
 
-
-    path = svgCPU.datum(cpus).selectAll(".svgCPU path")
+    pathCPU = svgCPU.datum(cpus).selectAll("path")
                           .data(vizPieCPU)
                           .attr("d", arc)
 
-    // pathMem = svgMem.datum(mems).selectAll(".svgMem path")
-    //                       .data(vizPieMem)
-    //                       .attr("d", arc)
+    pathMem = svgMem.datum(mems).selectAll("path")
+                          .data(vizPieMem)
+                          .attr("d", arc)
 
     // Defines arcs
-    g = svgCPU.selectAll(".svgCPU .arc")
+    gCPU = svgCPU.selectAll(".arc")
         .data(vizPieCPU(cpus))
         .enter().append("g")
         .attr("class", "arc")
         .style("stroke-width", 3);
 
-    gMem = svgMem.selectAll(".svgMem .arc")
+    gMem = svgMem.selectAll(".arc")
         .data(vizPieMem(mems))
         .enter().append("g")
         .attr("class", "arc")
@@ -345,12 +361,13 @@ function displayData(jsonData) {
       .attr("d", arcMem)
       .style("fill", function(d, i) { return color(i); });
 
-    svgCPU.selectAll('.svgCPU path').each(function(d, i) {
+    svgCPU.selectAll('path').each(function(d, i) {
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
 
-    svgMem.selectAll('.svgMem path').each(function(d, i) {
+    svgMem.selectAll('path').each(function(d, i) {
+        // debugger;
         $(this).attr('id', jsonData[i].id)
         $(this).on('click', createProcessMenu(parseInt($(this).attr('id'), 10), jsonData));
     });
@@ -380,6 +397,39 @@ function displayData(jsonData) {
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("Memory Usage");
+
+   }
+
+   function getCPUData(jsonData) {
+        var cpus = [];
+        for (item in jsonData) {
+            if(jsonData.hasOwnProperty(item)) {
+                cpus.push(jsonData[item].cpu);
+            }
+        }
+
+        var total = 0;  //Variable to hold your total
+
+        for(var i=0, len=cpus.length; i<len; i++){
+            total += cpus[i];  //Iterate over your first array and then grab the second element add the values up
+        }
+        if (total === 0) {
+            return;
+        }
+
+        var dummyCPUS = cpus.slice(0);
+
+        maxCPUVals = [];
+        for(var i=0;i<4;i++) {
+            var maxVal = Math.max.apply(Math, dummyCPUS);
+            maxCPUVals.push(maxVal);
+            var index = dummyCPUS.indexOf(maxVal);
+            if (index > -1) {
+                dummyCPUS.splice(index, 1);
+            }
+        }
+
+        return cpus;
 
    }
 
