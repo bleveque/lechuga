@@ -108,6 +108,8 @@ body {
 	overflow: hidden;
 	text-align: center;
 	text-overflow: ellipsis;
+	text-decoration: underline;
+	font-weight: bold;
 	white-space: nowrap;
 	width: 100%;
 }
