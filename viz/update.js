@@ -152,7 +152,7 @@ function createProcessMenu(id, processList, container) {
         })
         container.append(menu);
         process = getArrayEltByProp(processList, 'id', id);
-        mem = process.memory;
+        mem = convertMetric(process.memory);
         cpu = process.cpu;
         if(process && process.info && process.info.type === 'tab') {
             removeTabButton = $(document.createElement('button'));
@@ -198,6 +198,21 @@ function filterProcesses(jsonData) {
         }
     }
     return ret;
+}
+
+/**
+ * Convert to appropriate metric system unit
+ * @param input      number to convert
+ * @return           formatted string
+ */
+function convertMetric(input) {
+    var units = ['B', 'KB', 'MB', 'GB'],
+        reductions = 0;
+    while(input > 1024 && reductions < 3) {
+        input /= 1024;
+        reductions++;
+    }
+    return input.toFixed(4) + units[reductions];
 }
 
 /**
