@@ -47,10 +47,7 @@ function setup() {
         .enter().append("g")
         .attr("class", "arc");
 
-    g.append("path")
-      .attr("d", arc)
-      .style("fill", function(d) { return color(d); });
-
+    g.append("path").attr("d", arc);
     
 }
 
@@ -87,6 +84,7 @@ function displayData(jsonData) {
 
     path = svg.datum(cpus).selectAll("path")
                           .data(vizPie)
+                          .style("fill", function(d, i) { return color(i); })
                           .attr("d", arc)
                           // .attr("fill", function(d, i) { return color(i); });
 
