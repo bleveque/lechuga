@@ -78,10 +78,10 @@ function displayData(jsonData) {
 
                 if (jsonData[item].info.title.length >= 10) {
                     var url = jsonData[item].info.url
-                    console.log(url)
+                    // console.log(url)
                     title = url.match(/\.{1}\w+\.{1}/g)
                     
-                    console.log("title: " + title)
+                    // console.log("title: " + title)
 
                     if (title == null) {
                         names.push(jsonData[item].info.title.slice(1,10))
@@ -89,7 +89,7 @@ function displayData(jsonData) {
                     else {
                         
                         finalTitle = title[0].slice(1,-2);
-                        console.log(finalTitle);
+                        // console.log(finalTitle);
                         names.push(finalTitle);
                     }
                     
@@ -104,7 +104,7 @@ function displayData(jsonData) {
         }
     }
 
-    console.log()
+    // console.log()
 
     // Define svg canvas
     svg = d3.select("#annulusContainer").append("svg")

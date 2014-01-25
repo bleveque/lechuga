@@ -20,28 +20,39 @@ var BrowserUtils = (function() {
 		array.push(newElt);
 	}
 
-    function convert(bigArray, prop) {
+    function convert(inputArray, prop) {
+        var bigArray = inputArray.slice(0);
         var snapshot,
             proc,
             i, j,
             ret = {},
             name,
-            k,
-            longestArrayLength = 0;
+            k;
+        console.log(bigArray);
         for(i=0;i<bigArray.length;i++) {
             snapshot = bigArray[i];
-            for(j=0;j<snapshot.length;j++) {
-                proc = snapshot[j];
-                name = proc.info.type === 'tab' ? proc.info.name : proc.info.type;
-                if(!ret[name]) {
-                    ret[name] = [];
-                    for(k=0;k<i-1;k++) {
-                        ret[name].push(0);
+            (function(snapshot) {
+                for(j=0;j<snapshot.length;j++) {
+                    name = snapshot[j].info.type === 'tab' ? snapshot[j].info.title : snapshot[j].info.type;
+                    if(!ret[name]) {
+                        // console.log('new');
+                        ret[name] = new Array(0);
+                        for(k=0;k<i-1;k++) {
+                            ret[name].push(0);
+                        }
                     }
+                    if(name.match(/Pie/)) {
+                        console.log('i = '+i+', j = '+j+', matched: ');
+                        console.log(snapshot[j][prop]);
+                    }
+                    ret[name][i] = snapshot[j][prop];
+                
                 }
-                ret[name].push(proc[prop]);
-            }
+            })(snapshot);
         }
+        // console.log(ret);
+
+        return ret;
     }
 
     function formatProcHistory(procHistory) {
@@ -60,7 +71,7 @@ var BrowserUtils = (function() {
                 proc = procz[col];
                 procName = proc.info.title || proc.info.type;
                 if (!(procName in newProcHistory)) {
-                    console.log(col, row);
+                    //console.log(col, row);
                     newProcHistory[procName] = Array.apply(null, new Array(procHistory.length)).map(Number.prototype.valueOf,0);
                 }
                 newProcHistory[procName] += proc.cpu;
@@ -182,7 +193,8 @@ var BrowserUtils = (function() {
 
             get_proc_info(processesArray, function() {
     			lettucePush(procHistory, procs, historyLength);
-                formatProcHistory(procHistory);
+                //formatProcHistory(procHistory);
+                var ret = convert(procHistory, 'cpu');
                 sendProcData(procs);
     			// update.displayData(procs);
             });
