@@ -91,6 +91,11 @@ function setup(jsonData) {
                 .append("path")
                 .attr("fill", function(d, i) { return color(i); });
 
+    $('path').attr({
+        stroke: 'rgba(255,255,255,0.5)',
+        'stroke-width': '2'
+    });
+
     pathCPU.transition()
         .duration(1000)
         .attr("d", arcCPU)
@@ -153,6 +158,19 @@ function getArrayEltByProp(array, prop, val) {
 }
 
 /**
+ * Analogous to the function above
+ */
+function getArrayIndexByProp(array, prop, val) {
+    var i;
+    for(i=0;i<array.length;i++) {
+        if(array[i][prop] === val) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/**
  * Creates and returns a click handler that creates
  * a menu with additional information about the selected
  * process
@@ -180,6 +198,7 @@ function createProcessMenu(id, processList, container) {
             process,
             height,
             name,
+            arrInd,
             mem,
             tab = false,
             cpu;
@@ -202,9 +221,11 @@ function createProcessMenu(id, processList, container) {
             removeTabButton.attr({
                 type: 'button'
             });
-            removeTabButton.text('close tab');
+            removeTabButton.text('Close Tab');
             removeTabButton.on('click', function(evt) {
                 shouldUpdate = true;
+                arrInd = getArrayIndexByProp(processList, 'id', id);
+                (arrInd >= 0) && processList.splice(arrInd, 1);
                 closeTab(process.info.tabid)(evt);
             });
             removeTabButtonContainer.append(removeTabButton);
@@ -403,7 +424,6 @@ function determineNames(jsonData) {
  * @param jsonData    an array of processes
  */
 function displayData(jsonData) {
-
     if(!shouldUpdate) {
         return;
     }
