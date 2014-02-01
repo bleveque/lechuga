@@ -30,6 +30,10 @@ var svgCPU,
     gMem,
     label_group;
 
+    
+var cpuTotal = 0;
+var memTotal = 0;
+
 
 /**
  * Initial setup for d3 elements
@@ -40,10 +44,21 @@ function setup(jsonData) {
     mems = [];
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
-            cpus.push(jsonData[item].cpu);
-            mems.push(jsonData[item].memory);
+            cpuDatum = jsonData[item].cpu;
+            memDatum = jsonData[item].memory
+            
+            cpuTotal += cpuDatum;
+            memTotal += memDatum;
+
+            cpus.push(cpuDatum);
+            mems.push(memDatum);
         }
     }
+
+    cpuTotal = Math.round(cpuTotal);
+    // Convert to Mb from bytes
+    memTotal = Math.round(memTotal * 9.53674 * Math.pow(10,-7));
+
     //Create SVG element
     svgCPU = d3.select("#cpuContainer").append("svg")
         .attr("width", width)
@@ -62,14 +77,22 @@ function setup(jsonData) {
         .style("font-size","24px")
         .text("CPU Usage");
 
+    svgCPU.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","18px")
+        .attr("dy", 30)
+        .text("Total: " + cpuTotal + " (%)");
+
     svgMem.append("text")
         .style("text-anchor", "middle")
         .style("font-size","24px")
         .text("Mem Usage");
 
-    console.log("svgMem:", svgMem);
-    console.log("svgCPU:", svgCPU);
-
+    svgMem.append("text")
+        .style("text-anchor", "middle")
+        .style("font-size","18px")
+        .attr("dy", 30)
+        .text("Total: " + memTotal + " (Mb)");
 
     arcCPU = d3.svg.arc()
         .innerRadius(radius - 50)
@@ -477,10 +500,22 @@ function displayData(jsonData) {
     mems.length = 0;
     for (item in jsonData) {
         if(jsonData.hasOwnProperty(item)) {
-            cpus.push(jsonData[item].cpu);
-            mems.push(jsonData[item].memory);
+            cpuDatum = jsonData[item].cpu;
+            memDatum = jsonData[item].memory
+            
+            cpuTotal += cpuDatum;
+            memTotal += memDatum;
+
+            cpus.push(cpuDatum);
+            mems.push(memDatum);
         }
     }
+
+    cpuTotal = Math.round(cpuTotal);
+    memTotal = Math.round(memTotal * 9.53674 * Math.pow(10,-7));
+
+    console.log("cpu: " + cpuTotal);
+    console.log("mem: " + memTotal);
 
     var nameLists = determineNames(jsonData);
     var namesCPU = nameLists[0];
